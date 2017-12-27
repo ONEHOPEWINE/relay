@@ -16,7 +16,7 @@ const getClassicTransformer = require('./getClassicTransformer');
 
 import type {BabelState} from './BabelPluginRelay';
 import type {GraphQLSchemaProvider} from './getClassicTransformer';
-import typeof BabelTypes from 'babel-types';
+import typeof BabelTypes from '@babel/types';
 
 /**
  * Given all the metadata about a found RelayQL tag, compile it and return

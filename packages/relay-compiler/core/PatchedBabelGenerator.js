@@ -9,8 +9,8 @@
 
 'use strict';
 
-const babelGenerator = require('babel-generator').default;
-const Printer = require('babel-generator/lib/printer');
+const babelGenerator = require('@babel/generator').default;
+const Printer = require('@babel/generator/lib/printer');
 
 /**
  * babel-generator has a bug where it doesn't correctly adds parens around

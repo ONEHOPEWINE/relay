@@ -12,7 +12,7 @@
 'use strict';
 
 const invariant = require('invariant');
-const t = require('babel-types');
+const t = require('@babel/types');
 
 type BabelAST = mixed;
 

@@ -11,7 +11,7 @@
 
 'use strict';
 
-import typeof BabelTypes from 'babel-types';
+import typeof BabelTypes from '@babel/types';
 
 /**
  * Relay Compat transforms graphql definitions into objects with `modern` and

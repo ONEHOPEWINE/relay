@@ -11,12 +11,20 @@
 
 'use strict';
 
-const PatchedBabelGenerator = require('./PatchedBabelGenerator');
+// TODO: These monkey patches don’t work with babel 7
+// const PatchedBabelGenerator = require('./PatchedBabelGenerator');
+const PatchedBabelGenerator = {
+  generate(ast) {
+    const generate = require('@babel/generator').default;
+    return generate(ast).code;
+  }
+};
+
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
 const nullthrows = require('nullthrows');
-const t = require('babel-types');
+const t = require('@babel/types');
 
 const {
   anyTypeAlias,

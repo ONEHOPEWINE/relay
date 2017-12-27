@@ -12,8 +12,8 @@ const babel = require('gulp-babel');
 const babelOptions = require('./scripts/getBabelOptions')({
   moduleMap: {
     'babel-core': 'babel-core',
-    'babel-generator': 'babel-generator',
-    'babel-generator/lib/printer': 'babel-generator/lib/printer',
+    '@babel/generator': '@babel/generator',
+    '@babel/generator/lib/printer': '@babel/generator/lib/printer',
     'babel-polyfill': 'babel-polyfill',
     'babel-runtime/helpers/asyncToGenerator':
       'babel-runtime/helpers/asyncToGenerator',
@@ -28,7 +28,7 @@ const babelOptions = require('./scripts/getBabelOptions')({
     'babel-runtime/helpers/toConsumableArray':
       'babel-runtime/helpers/toConsumableArray',
     'babel-traverse': 'babel-traverse',
-    'babel-types': 'babel-types',
+    '@babel/types': '@babel/types',
     babylon: 'babylon',
     chalk: 'chalk',
     child_process: 'child_process',

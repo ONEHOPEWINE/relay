@@ -17,7 +17,7 @@ const createModernNode = require('./createModernNode');
 const getFragmentNameParts = require('./getFragmentNameParts');
 
 import type {BabelState} from './BabelPluginRelay';
-import typeof BabelTypes from 'babel-types';
+import typeof BabelTypes from '@babel/types';
 import type {DocumentNode} from 'graphql';
 
 /**

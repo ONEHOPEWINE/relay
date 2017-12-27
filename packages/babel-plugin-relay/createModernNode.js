@@ -17,7 +17,7 @@ const {print} = require('graphql');
 
 const GENERATED = './__generated__/';
 
-import typeof BabelTypes from 'babel-types';
+import typeof BabelTypes from '@babel/types';
 import type {OperationDefinitionNode, FragmentDefinitionNode} from 'graphql';
 
 /**

@@ -11,7 +11,7 @@
 
 'use strict';
 
-const t = require('babel-types');
+const t = require('@babel/types');
 
 const {readOnlyArrayOfType} = require('RelayFlowBabelFactories');
 const {

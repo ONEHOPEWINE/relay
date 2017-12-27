@@ -19,7 +19,7 @@ const getFragmentNameParts = require('./getFragmentNameParts');
 const invariant = require('./invariant');
 
 import type {BabelState} from './BabelPluginRelay';
-import typeof BabelTypes from 'babel-types';
+import typeof BabelTypes from '@babel/types';
 import type {DefinitionNode} from 'graphql';
 
 /**
