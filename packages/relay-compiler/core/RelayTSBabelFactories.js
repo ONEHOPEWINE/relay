@@ -99,13 +99,7 @@ function readOnlyArrayOfType(thing: BabelAST) {
  * +KEY: VALUE
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
-  if (t.isIdentifier(value)) {
-    value = t.TSTypeReference(value);
-  }
-  if (!value.typeAnnotation) {
-    value = t.TSTypeAnnotation(value);
-  }
-  const prop = t.TSPropertySignature(t.identifier(key), value);
+  const prop = objectTypeProperty(key, value);
   prop.readonly = true;
   return prop;
 }
@@ -146,6 +140,19 @@ function getRawType(typeOrAnnotation: BabelAST): BabelAST {
   return typeOrAnnotation.typeAnnotation ? typeOrAnnotation.typeAnnotation : typeOrAnnotation;
 }
 
+/**
+ * KEY: VALUE
+ */
+function objectTypeProperty(key: string, value: BabelAST) {
+  if (t.isIdentifier(value)) {
+    value = t.TSTypeReference(value);
+  }
+  if (!value.typeAnnotation) {
+    value = t.TSTypeAnnotation(value);
+  }
+  return t.TSPropertySignature(t.identifier(key), value);
+}
+
 module.exports = {
   anyTypeAlias,
   exactObjectTypeAnnotation,
@@ -160,4 +167,5 @@ module.exports = {
   nullableTypeAnnotation,
   genericTypeAnnotation,
   typeParameterInstantiation,
+  objectTypeProperty,
 };

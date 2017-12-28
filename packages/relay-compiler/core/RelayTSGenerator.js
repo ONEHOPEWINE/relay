@@ -36,6 +36,7 @@ const {
   readOnlyObjectTypeProperty,
   stringLiteralTypeAnnotation,
   unionTypeAnnotation,
+  objectTypeProperty,
 } = require('./RelayTSBabelFactories');
 const {
   transformScalarType,
@@ -373,8 +374,8 @@ function generateInputVariablesType(node: Root, state: State) {
     `${node.name}Variables`,
     exactObjectTypeAnnotation(
       node.argumentDefinitions.map(arg => {
-        const property = t.objectTypeProperty(
-          t.identifier(arg.name),
+        const property = objectTypeProperty(
+          arg.name,
           transformInputType(arg.type, state),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
