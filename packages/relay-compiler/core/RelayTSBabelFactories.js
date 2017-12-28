@@ -77,7 +77,8 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
     types.length > 0,
     'RelayTSBabelFactories: cannot create an intersection of 0 types',
   );
-  return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
+  types = types.map(getRawType).map(type => t.isIdentifier(type) ? t.TSTypeReference(type) : type);
+  return t.TSTypeAnnotation(types.length === 1 ? types[0] : t.TSIntersectionType(types));
 }
 
 function lineComments(...lines: Array<string>) {

@@ -161,7 +161,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
       stringLiteralTypeAnnotation('%other'),
     );
     otherProp.leadingComments = lineComments(
-      "This will never be '%other', but we need some",
+      'This will never be "%other", but we need some',
       'value in case none of the concrete values match.',
     );
     types.push([otherProp]);
