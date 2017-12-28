@@ -11,7 +11,7 @@
 
 'use strict';
 
-const RelayFlowGenerator = require('../core/RelayFlowGenerator');
+const RelayTypeGenerator = require('../core/types/RelayTypeGenerator');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 
@@ -31,7 +31,7 @@ const {
 } = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {ScalarTypeMapping} from '../core/RelayFlowTypeTransformers';
+import type {ScalarTypeMapping} from '../core/types/RelayTypeTransformers';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {FormatModule} from './writeRelayGeneratedFile';
 import type {FileWriterInterface, Reporter} from 'graphql-compiler';
@@ -67,6 +67,7 @@ export type WriterConfig = {
     GLOBAL_RULES?: Array<ValidationRule>,
     LOCAL_RULES?: Array<ValidationRule>,
   },
+  outputLanguage: 'js' | 'ts',
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -204,8 +205,8 @@ class RelayFileWriter implements FileWriterInterface {
         return cachedDir;
       };
 
-      const transformedFlowContext = compilerContext.applyTransforms(
-        RelayFlowGenerator.flowTransforms,
+      const transformedTypeContext = compilerContext.applyTransforms(
+        RelayTypeGenerator.transforms,
         this._reporter,
       );
       const transformedQueryContext = compilerContext.applyTransforms(
@@ -258,21 +259,28 @@ class RelayFileWriter implements FileWriterInterface {
             const relayRuntimeModule =
               this._config.relayRuntimeModule || 'relay-runtime';
 
-            const flowNode = transformedFlowContext.get(node.name);
+            const typeNode = transformedTypeContext.get(node.name);
             invariant(
-              flowNode,
+              typeNode,
               'RelayFileWriter: did not compile flow types for: %s',
               node.name,
             );
 
-            const flowTypes = RelayFlowGenerator.generate(flowNode, {
+            const typeOptions = {
               customScalars: this._config.customScalars,
               enumsHasteModule: this._config.enumsHasteModule,
               existingFragmentNames,
               inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
               relayRuntimeModule,
               useHaste: this._config.useHaste,
-            });
+            };
+
+            let types;
+            if (this._config.outputLanguage === 'js') {
+              types = RelayTypeGenerator.generateFlow(typeNode, typeOptions);
+            } else {
+              types = RelayTypeGenerator.generateTypeScript(typeNode, typeOptions);
+            }
 
             const sourceHash = Profiler.run('hashGraphQL', () =>
               md5(graphql.print(getDefinitionMeta(node.name).ast)),
@@ -282,7 +290,7 @@ class RelayFileWriter implements FileWriterInterface {
               getGeneratedDirectory(node.name),
               node,
               formatModule,
-              flowTypes,
+              types,
               persistQuery,
               this._config.platform,
               relayRuntimeModule,

@@ -83,6 +83,32 @@ function getFilepathsFromGlob(
   });
 }
 
+function getOutputLanguage(options: {
+  extensions: Array<string>,
+  language?: string,
+}): 'js' | 'ts' {
+  let outputLanguage: ?('js' | 'ts');
+  if (options.language) {
+    if (options.language === 'js' || options.language === 'ts') {
+      outputLanguage = options.language;
+    } else {
+      throw new Error('Language should be either `js` or `ts`.');
+    }
+  }
+  if (!outputLanguage) {
+    // Create a list of extensions that match js* or ts*
+    const extensions = [...new Set(options.extensions.map(ext => {
+      const match = ext.match(/^(js|ts)x?/);
+      return match && match[0];
+    }).filter(ext => !!ext))];
+    // Only if there’s only 1 result do we choose that as the default
+    if (extensions.length === 1 && extensions[0] === 'js' || extensions[0] === 'ts') {
+      outputLanguage = extensions[0];
+    }
+  }
+  return outputLanguage || 'js';
+}
+
 async function run(options: {
   schema: string,
   src: string,
@@ -93,6 +119,7 @@ async function run(options: {
   watchman: boolean,
   watch?: ?boolean,
   validate: boolean,
+  language?: string,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -136,7 +163,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     default: {
-      getWriter: getRelayFileWriter(srcDir),
+      getWriter: getRelayFileWriter(srcDir, getOutputLanguage(options)),
       isGeneratedFile: (filePath: string) =>
         filePath.endsWith('.js') && filePath.includes('__generated__'),
       parser: 'default',
@@ -164,7 +191,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string) {
+function getRelayFileWriter(baseDir: string, outputLanguage: 'js' | 'ts') {
   return (onlyValidate, schema, documents, baseDocuments, reporter) =>
     new RelayFileWriter({
       config: {
@@ -181,6 +208,7 @@ function getRelayFileWriter(baseDir: string) {
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,
+        outputLanguage
       },
       onlyValidate,
       schema,
@@ -291,6 +319,10 @@ const argv = yargs
         'writing to disk',
       type: 'boolean',
       default: false,
+    },
+    language: {
+      describe: 'The language used for artifacts (js or ts), defaults to base on `extensions` option',
+      type: 'string',
     },
   })
   .help().argv;
