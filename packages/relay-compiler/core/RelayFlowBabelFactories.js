@@ -91,7 +91,13 @@ function readOnlyArrayOfType(thing: BabelAST) {
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
   const prop = t.objectTypeProperty(t.identifier(key), value);
-  prop.variance = 'plus';
+  // TODO: @babel/types v7 has no function to build this AST
+  // https://github.com/babel/babel/pull/5320
+  // https://github.com/babel/babel/commit/1cca7000d1f4ab2db6bb3662d778f7efd4b1fa1a
+  prop.variance = {
+    type: 'Variance',
+    kind: 'plus',
+  };
   return prop;
 }
 
