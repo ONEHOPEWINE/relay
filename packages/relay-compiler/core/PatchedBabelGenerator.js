@@ -10,7 +10,7 @@
 'use strict';
 
 const babelGenerator = require('@babel/generator').default;
-const Printer = require('@babel/generator/lib/printer');
+const Printer = require('@babel/generator/lib/printer').default;
 
 /**
  * babel-generator has a bug where it doesn't correctly adds parens around
@@ -45,8 +45,11 @@ function generate(ast) {
   };
   try {
     return babelGenerator(ast, {
-      flowCommaSeparator: true,
-      quotes: 'single',
+      // These no longer exist in Babel 7.
+      // https://github.com/babel/babel/pull/5123
+      // flowCommaSeparator: true,
+      // https://github.com/babel/babel/pull/5824
+      // quotes: 'single',
     }).code;
   } finally {
     Printer.prototype.UnionTypeAnnotation = originalUnionTypeAnnotation;
