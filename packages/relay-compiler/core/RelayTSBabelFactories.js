@@ -99,11 +99,9 @@ function readOnlyArrayOfType(thing: BabelAST) {
  * +KEY: VALUE
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
-  // TODO: Make readonly
-  // const prop = t.objectTypeProperty(t.identifier(key), value);
-  // prop.variance = 'plus';
-  // return prop;
-  return t.TSPropertySignature(t.identifier(key), value);
+  const prop = t.TSPropertySignature(t.identifier(key), value);
+  prop.readonly = true;
+  return prop;
 }
 
 function stringLiteralTypeAnnotation(value: string) {
