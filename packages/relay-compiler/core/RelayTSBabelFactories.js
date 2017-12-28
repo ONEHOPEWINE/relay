@@ -1,0 +1,179 @@
+/**
+ * Copyright (c) 2013-present, Facebook, Inc.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @providesModule RelayTSBabelFactories
+ * @flow
+ * @format
+ */
+
+'use strict';
+
+const invariant = require('invariant');
+const t = require('@babel/types');
+
+type BabelAST = mixed;
+
+/**
+ * type NAME = any;
+ */
+function anyTypeAlias(name: string): BabelAST {
+  return t.typeAlias(t.identifier(name), null, t.anyTypeAnnotation());
+}
+
+/**
+ * {|
+ *   PROPS
+ * |}
+ */
+function exactObjectTypeAnnotation(props: Array<BabelAST>) {
+  // TODO: Make exact?
+  // const typeAnnotation = t.objectTypeAnnotation(props);
+  // typeAnnotation.exact = true;
+  // return typeAnnotation;
+  return t.TSTypeAnnotation(t.TSTypeLiteral(props));
+}
+
+/**
+ * In the case of an object type, this will export an interface: export interface NAME TYPE
+ * Otherwise this will export a type: export type NAME = type
+ */
+function exportType(name: string, type: BabelAST) {
+  if (type.typeAnnotation) {
+    type = type.typeAnnotation;
+  } else {
+    console.warn(`TODO: A non-annotation type was given: ${type}`);
+  }
+  if (t.isTSTypeLiteral(type)) {
+    const interfaceBody = t.TSInterfaceBody(type.members)
+    const interfaceDeclaration = t.TSInterfaceDeclaration(t.identifier(name), null, null, interfaceBody);
+    return t.exportNamedDeclaration(interfaceDeclaration, [], null);
+  } else {
+    return t.exportNamedDeclaration(
+      t.typeAlias(t.identifier(name), null, type),
+      [],
+      null,
+    );
+  }
+}
+
+/**
+ * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
+ */
+function importTypes(names: Array<string>, module: string) {
+  const importDeclaration = t.importDeclaration(
+    names.map(name =>
+      t.importSpecifier(t.identifier(name), t.identifier(name)),
+    ),
+    t.stringLiteral(module),
+  );
+  importDeclaration.importKind = 'type';
+  return importDeclaration;
+}
+
+/**
+ * Create an intersection type if needed.
+ *
+ * TYPES[0] & TYPES[1] & ...
+ */
+function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+  invariant(
+    types.length > 0,
+    'RelayTSBabelFactories: cannot create an intersection of 0 types',
+  );
+  return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
+}
+
+function lineComments(...lines: Array<string>) {
+  return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
+}
+
+/**
+ * $ReadOnlyArray<TYPE>
+ */
+function readOnlyArrayOfType(thing: BabelAST) {
+  return genericTypeAnnotation(
+    t.identifier('ReadonlyArray'),
+    typeParameterInstantiation([thing]),
+  );
+}
+
+/**
+ * +KEY: VALUE
+ */
+function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
+  // TODO: Make readonly
+  // const prop = t.objectTypeProperty(t.identifier(key), value);
+  // prop.variance = 'plus';
+  // return prop;
+  return t.TSPropertySignature(t.identifier(key), value);
+}
+
+function stringLiteralTypeAnnotation(value: string) {
+  return t.TSTypeAnnotation(t.TSLiteralType(t.StringLiteral(value)));
+}
+
+/**
+ * Create a union type if needed.
+ *
+ * TYPES[0] | TYPES[1] | ...
+ */
+function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+  invariant(
+    types.length > 0,
+    'RelayTSBabelFactories: cannot create a union of 0 types',
+  );
+  types = types.map(type => {
+    if (type.typeAnnotation) {
+      type = type.typeAnnotation;
+    } else {
+      console.warn(`TODO: A non-annotation type was given: ${type}`);
+    }
+    return type;
+  });
+  return t.TSTypeAnnotation(types.length === 1 ? types[0] : t.TSUnionType(types));
+}
+
+function nullableTypeAnnotation(type: BabelAST): BabelAST {
+  if (type.typeAnnotation) {
+    type = type.typeAnnotation;
+  } else {
+    console.warn(`TODO: A non-annotation type was given: ${type}`);
+  }
+  return t.TSTypeAnnotation(t.TSUnionType([type, t.TSNullKeyword()]));
+}
+
+function genericTypeAnnotation(identifier: BabelAST, typeParameterInstantiation: BabelAST): BabelAST {
+  return t.TSTypeReference(identifier, typeParameterInstantiation);
+}
+
+function typeParameterInstantiation(params: Array<BabelAST>): BabelAST {
+  // console.log(params)
+  params = params.map(type => {
+    if (type.typeAnnotation) {
+      type = type.typeAnnotation;
+    } else {
+      console.warn(`TODO: A non-annotation type was given: ${type}`);
+    }
+    return type;
+  });
+  return t.TSTypeParameterInstantiation(params);
+}
+
+module.exports = {
+  anyTypeAlias,
+  exactObjectTypeAnnotation,
+  exportType,
+  importTypes,
+  intersectionTypeAnnotation,
+  lineComments,
+  readOnlyArrayOfType,
+  readOnlyObjectTypeProperty,
+  stringLiteralTypeAnnotation,
+  unionTypeAnnotation,
+  nullableTypeAnnotation,
+  genericTypeAnnotation,
+  typeParameterInstantiation,
+};

@@ -1,0 +1,14 @@
+export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";
+export interface ScalarField {
+  id: string;
+  name: string | null;
+  websites: ReadonlyArray<string | null> | null;
+  traits: ReadonlyArray<PersonalityTraits | null> | null;
+  aliasedLinkedField: {
+    aliasedField: number | null;
+  } | null;
+  screennames: ReadonlyArray<{
+    name: string | null;
+    service: string | null;
+  } | null> | null;
+}
