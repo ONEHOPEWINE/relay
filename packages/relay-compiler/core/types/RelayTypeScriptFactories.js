@@ -13,7 +13,7 @@
 const invariant = require('invariant');
 const t = require('@babel/types');
 
-type BabelAST = mixed;
+import type { BabelAST, BabelFactories } from './RelayTypeGenerator';
 
 /**
  * type NAME = any;
@@ -23,10 +23,11 @@ function anyTypeAlias(name: string): BabelAST {
 }
 
 /**
- * TODO: There is no `Exact` type in TypeScript atm
- * https://github.com/Microsoft/TypeScript/issues/12936
+ * { PROPS }
+ *
+ * @TODO: There is no `Exact` type in TypeScript atm https://github.com/Microsoft/TypeScript/issues/12936
  */
-function exactObjectTypeAnnotation(props: Array<BabelAST>) {
+function exactObjectTypeAnnotation(props: Array<BabelAST>): BabelAST {
   return t.TSTypeAnnotation(t.TSTypeLiteral(props));
 }
 
@@ -34,7 +35,7 @@ function exactObjectTypeAnnotation(props: Array<BabelAST>) {
  * In the case of an object type, this will export an interface: export interface NAME TYPE
  * Otherwise this will export a type: export type NAME = type
  */
-function exportType(name: string, type: BabelAST) {
+function exportType(name: string, type: BabelAST): BabelAST {
   type = getRawType(type)
   if (t.isTSTypeLiteral(type)) {
     const interfaceBody = t.TSInterfaceBody(type.members)
@@ -52,7 +53,7 @@ function exportType(name: string, type: BabelAST) {
 /**
  * import {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importTypes(names: Array<string>, module: string) {
+function importTypes(names: Array<string>, module: string): BabelAST {
   const importDeclaration = t.importDeclaration(
     names.map(name =>
       t.importSpecifier(t.identifier(name), t.identifier(name)),
@@ -76,31 +77,27 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   return t.TSTypeAnnotation(types.length === 1 ? types[0] : t.TSIntersectionType(types));
 }
 
-function lineComments(...lines: Array<string>) {
+function lineComments(...lines: Array<string>): Array<BabelAST> {
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
 /**
- * $ReadOnlyArray<TYPE>
+ * ReadonlyArray<TYPE>
  */
 function readOnlyArrayOfType(thing: BabelAST) {
   return genericTypeAnnotation(
     t.identifier('ReadonlyArray'),
-    typeParameterInstantiation([thing]),
+    t.TSTypeParameterInstantiation([getRawType(thing)])
   );
 }
 
 /**
- * +KEY: VALUE
+ * readonly KEY: VALUE
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
   const prop = objectTypeProperty(key, value);
   prop.readonly = true;
   return prop;
-}
-
-function stringLiteralTypeAnnotation(value: string) {
-  return t.TSTypeAnnotation(t.TSLiteralType(t.StringLiteral(value)));
 }
 
 /**
@@ -117,28 +114,24 @@ function unionTypeAnnotation(types: Array<BabelAST>, onlyIfNeeded: boolean = tru
   return t.TSTypeAnnotation(onlyIfNeeded && types.length === 1 ? types[0] : t.TSUnionType(types));
 }
 
+/**
+ * TYPE | null
+ */
 function nullableTypeAnnotation(type: BabelAST): BabelAST {
   return t.TSTypeAnnotation(t.TSUnionType([getRawType(type), t.TSNullKeyword()]));
 }
 
-function genericTypeAnnotation(identifier: BabelAST, typeParameterInstantiation: BabelAST): BabelAST {
-  return t.TSTypeReference(identifier, typeParameterInstantiation);
-}
-
-function typeParameterInstantiation(params: Array<BabelAST>): BabelAST {
-  // console.log(params)
-  return t.TSTypeParameterInstantiation(params.map(getRawType));
-}
-
-// TODO: Figure out if this was really necessary or just a mess-up in creating types vs annotations in the right places.
-function getRawType(typeOrAnnotation: BabelAST): BabelAST {
-  return typeOrAnnotation.typeAnnotation ? typeOrAnnotation.typeAnnotation : typeOrAnnotation;
+/**
+ * ID<PARAM>
+ */
+function genericTypeAnnotation(id: BabelAST, param?: BabelAST): BabelAST {
+  return t.TSTypeReference(id, param);
 }
 
 /**
  * KEY: VALUE
  */
-function objectTypeProperty(key: string, value: BabelAST) {
+function objectTypeProperty(key: string, value: BabelAST): BabelAST {
   if (t.isIdentifier(value)) {
     value = t.TSTypeReference(value);
   }
@@ -149,34 +142,35 @@ function objectTypeProperty(key: string, value: BabelAST) {
 }
 
 /**
- * TODO: There is no `opaque` type in TypeScript atm
- * https://github.com/Microsoft/TypeScript/issues/202
+ * export type TYPE_NAME = TYPE_ANNOTATION_NAME
+ *
+ * @TODO: There is no `opaque` type in TypeScript atm https://github.com/Microsoft/TypeScript/issues/202
  */
 function exportOpaqueTypeDeclaration(typeName: string, typeAnnotationName: string): BabelAST {
   return exportType(typeName, t.TSTypeReference(t.identifier(typeAnnotationName)));
 }
 
-function getRefTypeName(name: string): string {
-  return `${name}Ref`;
-}
-
-function refTypeObjectTypeProperty(refTypeName: string) {
+function refTypeObjectTypeProperty(refTypeName: string): BabelAST {
   return readOnlyObjectTypeProperty('refType', t.identifier(refTypeName));
 }
 
-function stringTypeAnnotation() {
+function stringLiteralTypeAnnotation(value: string): BabelAST {
+  return t.TSTypeAnnotation(t.TSLiteralType(t.StringLiteral(value)));
+}
+
+function stringTypeAnnotation(): BabelAST {
   return t.TSTypeAnnotation(t.TSStringKeyword());
 }
 
-function numberTypeAnnotation() {
+function numberTypeAnnotation(): BabelAST {
   return t.TSTypeAnnotation(t.TSNumberKeyword());
 }
 
-function booleanTypeAnnotation() {
+function booleanTypeAnnotation(): BabelAST {
   return t.TSTypeAnnotation(t.TSBooleanKeyword());
 }
 
-function anyTypeAnnotation() {
+function anyTypeAnnotation(): BabelAST {
   return t.TSTypeAnnotation(t.TSAnyKeyword());
 }
 
@@ -184,7 +178,18 @@ function objectTypeAnnotation(properties: Array<BabelAST>): BabelAST {
   return t.TSTypeLiteral(properties);
 }
 
-module.exports = {
+/**
+ * Unpacks an annotation, if necessary.
+ */
+function getRawType(typeOrAnnotation: BabelAST): BabelAST {
+  return typeOrAnnotation.typeAnnotation ? typeOrAnnotation.typeAnnotation : typeOrAnnotation;
+}
+
+function getRefTypeName(name: string): string {
+  return `${name}Ref`;
+}
+
+const factories: BabelFactories = {
   anyTypeAlias,
   anyTypeAnnotation,
   booleanTypeAnnotation,
@@ -206,5 +211,6 @@ module.exports = {
   unionTypeAnnotation,
   nullableTypeAnnotation,
   genericTypeAnnotation,
-  typeParameterInstantiation,
 };
+
+module.exports = factories;

@@ -19,6 +19,7 @@ const RelayTypeTransformers = require('./RelayTypeTransformers');
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
 
+const invariant = require('invariant');
 const nullthrows = require('nullthrows');
 const t = require('@babel/types');
 
@@ -56,7 +57,7 @@ export type State = {|
 type Selection = {
   key: string,
   schemaName?: string,
-  value?: any,
+  value?: BabelAST,
   nodeType?: any,
   conditional?: boolean,
   concreteType?: string,
@@ -65,7 +66,39 @@ type Selection = {
 };
 type SelectionMap = Map<string, Selection>;
 
-function generator(babelFactories: any) {
+export type BabelAST = {
+  optional?: boolean,
+  readonly?: boolean,
+  variance?: { kind: string, type: string},
+  leadingComments?: Array<BabelAST>,
+  members?: Array<BabelAST>,
+  typeAnnotation?: BabelAST,
+};
+export type BabelFactories = {
+  anyTypeAlias(name: string): BabelAST,
+  anyTypeAnnotation(): BabelAST,
+  booleanTypeAnnotation(): BabelAST,
+  exactObjectTypeAnnotation(props: Array<BabelAST>): BabelAST,
+  exportOpaqueTypeDeclaration(typeName: string, typeAnnotationName: string): BabelAST,
+  exportType(name: string, type: BabelAST): BabelAST,
+  genericTypeAnnotation(id: BabelAST, typeParameters?: BabelAST): BabelAST,
+  getRefTypeName(name: string): string,
+  importTypes(names: Array<string>, module: string): BabelAST,
+  intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST,
+  lineComments(...lines: Array<string>): Array<BabelAST>,
+  numberTypeAnnotation(): BabelAST,
+  nullableTypeAnnotation(typeAnnotation: BabelAST): BabelAST,
+  objectTypeAnnotation(properties: Array<BabelAST>): BabelAST,
+  objectTypeProperty(key: string, value: BabelAST): BabelAST,
+  readOnlyArrayOfType(thing: BabelAST): BabelAST,
+  readOnlyObjectTypeProperty(key: string, value: BabelAST): BabelAST,
+  refTypeObjectTypeProperty(refTypeName: string): BabelAST,
+  stringLiteralTypeAnnotation(value: string): BabelAST,
+  stringTypeAnnotation(): BabelAST,
+  unionTypeAnnotation(types: Array<BabelAST>, onlyIfNeeded?: boolean): BabelAST,
+};
+
+function generator(babelFactories: BabelFactories) {
   const {
     anyTypeAlias,
     exactObjectTypeAnnotation,
@@ -111,6 +144,7 @@ function generator(babelFactories: any) {
     if (schemaName === '__typename' && concreteType) {
       value = stringLiteralTypeAnnotation(concreteType);
     }
+    invariant(value, 'RelayTypeGenerator.makeProp: Expected a value');
     const typeProperty = readOnlyObjectTypeProperty(key, value);
     if (conditional) {
       typeProperty.optional = true;

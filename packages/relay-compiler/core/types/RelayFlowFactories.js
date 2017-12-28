@@ -13,7 +13,7 @@
 const invariant = require('invariant');
 const t = require('@babel/types');
 
-type BabelAST = mixed;
+import type { BabelAST, BabelFactories } from './RelayTypeGenerator';
 
 /**
  * type NAME = any;
@@ -27,7 +27,7 @@ function anyTypeAlias(name: string): BabelAST {
  *   PROPS
  * |}
  */
-function exactObjectTypeAnnotation(props: Array<BabelAST>) {
+function exactObjectTypeAnnotation(props: Array<BabelAST>): BabelAST {
   const typeAnnotation = t.objectTypeAnnotation(props);
   typeAnnotation.exact = true;
   return typeAnnotation;
@@ -36,7 +36,7 @@ function exactObjectTypeAnnotation(props: Array<BabelAST>) {
 /**
  * export type NAME = TYPE
  */
-function exportType(name: string, type: BabelAST) {
+function exportType(name: string, type: BabelAST): BabelAST {
   return t.exportNamedDeclaration(
     t.typeAlias(t.identifier(name), null, type),
     [],
@@ -47,7 +47,7 @@ function exportType(name: string, type: BabelAST) {
 /**
  * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
-function importTypes(names: Array<string>, module: string) {
+function importTypes(names: Array<string>, module: string): BabelAST {
   const importDeclaration = t.importDeclaration(
     names.map(name =>
       t.importSpecifier(t.identifier(name), t.identifier(name)),
@@ -71,14 +71,14 @@ function intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST {
   return types.length === 1 ? types[0] : t.intersectionTypeAnnotation(types);
 }
 
-function lineComments(...lines: Array<string>) {
+function lineComments(...lines: Array<string>): Array<BabelAST> {
   return lines.map(line => ({type: 'CommentLine', value: ' ' + line}));
 }
 
 /**
  * $ReadOnlyArray<TYPE>
  */
-function readOnlyArrayOfType(thing: BabelAST) {
+function readOnlyArrayOfType(thing: BabelAST): BabelAST {
   return t.genericTypeAnnotation(
     t.identifier('$ReadOnlyArray'),
     t.typeParameterInstantiation([thing]),
@@ -88,14 +88,14 @@ function readOnlyArrayOfType(thing: BabelAST) {
 /**
  * KEY: VALUE
  */
-function objectTypeProperty(key: string, value: BabelAST) {
+function objectTypeProperty(key: string, value: BabelAST): BabelAST {
   return t.objectTypeProperty(t.identifier(key), value);
 }
 
 /**
  * +KEY: VALUE
  */
-function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
+function readOnlyObjectTypeProperty(key: string, value: BabelAST): BabelAST {
   const prop = objectTypeProperty(key, value);
   // TODO: @babel/types v7 has no function to build this AST
   // https://github.com/babel/babel/pull/5320
@@ -107,7 +107,7 @@ function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
   return prop;
 }
 
-function stringLiteralTypeAnnotation(value: string) {
+function stringLiteralTypeAnnotation(value: string): BabelAST {
   const annotation = t.stringLiteralTypeAnnotation();
   annotation.value = value;
   return annotation;
@@ -138,11 +138,11 @@ function getRefTypeName(name: string): string {
   return `${name}$ref`;
 }
 
-function refTypeObjectTypeProperty(refTypeName: string) {
+function refTypeObjectTypeProperty(refTypeName: string): BabelAST {
   return readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName));
 }
 
-module.exports = {
+const factories: BabelFactories = {
   anyTypeAlias,
   anyTypeAnnotation: t.anyTypeAnnotation,
   booleanTypeAnnotation: t.booleanTypeAnnotation,
@@ -165,3 +165,5 @@ module.exports = {
   stringTypeAnnotation: t.stringTypeAnnotation,
   unionTypeAnnotation,
 };
+
+module.exports = factories;

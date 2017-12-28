@@ -10,6 +10,7 @@
 
 'use strict';
 
+const invariant = require('invariant');
 const t = require('@babel/types');
 
 const {
@@ -29,9 +30,9 @@ export type ScalarTypeMapping = {
   [type: string]: string,
 };
 
-import type {State} from './RelayTypeGenerator';
+import type {BabelAST, BabelFactories, State} from './RelayTypeGenerator';
 
-function transformers(babelFactories: any) {
+function transformers(babelFactories: BabelFactories) {
   const {
     anyTypeAnnotation,
     booleanTypeAnnotation,
@@ -48,8 +49,8 @@ function transformers(babelFactories: any) {
   function transformScalarType(
     type: GraphQLType,
     state: State,
-    objectProps?: mixed,
-  ) {
+    objectProps?: ?BabelAST,
+  ): BabelAST {
     if (type instanceof GraphQLNonNull) {
       return transformNonNullableScalarType(type.ofType, state, objectProps);
     } else {
@@ -63,8 +64,8 @@ function transformers(babelFactories: any) {
   function transformNonNullableScalarType(
     type: GraphQLType,
     state: State,
-    objectProps,
-  ) {
+    objectProps: ?BabelAST,
+  ): BabelAST {
     if (type instanceof GraphQLList) {
       return readOnlyArrayOfType(
         transformScalarType(type.ofType, state, objectProps),
@@ -74,6 +75,8 @@ function transformers(babelFactories: any) {
       type instanceof GraphQLUnionType ||
       type instanceof GraphQLInterfaceType
     ) {
+      invariant(objectProps, 'RelayTypeTransformers.transformNonNullableScalarType: In case of an object, union, or ' +
+        'interface type the `objectProps` argument is required.');
       return objectProps;
     } else if (type instanceof GraphQLScalarType) {
       return transformGraphQLScalarType(type, state);
@@ -84,7 +87,7 @@ function transformers(babelFactories: any) {
     }
   }
 
-  function transformGraphQLScalarType(type: GraphQLScalarType, state: State) {
+  function transformGraphQLScalarType(type: GraphQLScalarType, state: State): BabelAST {
     switch (state.customScalars[type.name] || type.name) {
       case 'ID':
       case 'String':
@@ -100,12 +103,12 @@ function transformers(babelFactories: any) {
     }
   }
 
-  function transformGraphQLEnumType(type: GraphQLEnumType, state: State) {
+  function transformGraphQLEnumType(type: GraphQLEnumType, state: State): BabelAST {
     state.usedEnums[type.name] = type;
     return genericTypeAnnotation(t.identifier(type.name));
   }
 
-  function transformInputType(type: GraphQLInputType, state: State) {
+  function transformInputType(type: GraphQLInputType, state: State): BabelAST {
     if (type instanceof GraphQLNonNull) {
       return transformNonNullableInputType(type.ofType, state);
     } else {
@@ -113,7 +116,7 @@ function transformers(babelFactories: any) {
     }
   }
 
-  function transformNonNullableInputType(type: GraphQLInputType, state: State) {
+  function transformNonNullableInputType(type: GraphQLInputType, state: State): BabelAST {
     if (type instanceof GraphQLList) {
       return readOnlyArrayOfType(transformInputType(type.ofType, state));
     } else if (type instanceof GraphQLScalarType) {
