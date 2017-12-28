@@ -33,7 +33,7 @@ describe('RelayTSGenerator', () => {
       const {definitions} = parseGraphQLText(schema, text);
       return new GraphQLCompilerContext(RelayTestSchema, schema)
         .addAll(definitions)
-        .applyTransforms(RelayTSGenerator.typescriptTransforms)
+        .applyTransforms(RelayTSGenerator.transforms)
         .documents()
         .map(doc =>
           RelayTSGenerator.generate(doc, {
