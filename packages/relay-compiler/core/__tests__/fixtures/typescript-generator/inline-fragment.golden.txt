@@ -1,0 +1,49 @@
+import { FragmentReference } from "relay-runtime";
+export type InlineFragmentRef = FragmentReference;
+export interface InlineFragment {
+  readonly id: string;
+  readonly name?: string | null;
+  readonly message?: {
+    readonly text: string | null;
+  } | null;
+  readonly refType: InlineFragmentRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type InlineFragmentWithOverlappingFieldsRef = FragmentReference;
+export interface InlineFragmentWithOverlappingFields {
+  readonly hometown?: {
+    readonly id: string;
+    readonly name: string | null;
+    readonly message?: {
+      readonly text: string | null;
+    } | null;
+  } | null;
+  readonly name?: string | null;
+  readonly refType: InlineFragmentWithOverlappingFieldsRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type InlineFragmentConditionalIDRef = FragmentReference;
+export interface InlineFragmentConditionalID {
+  readonly id?: string;
+  readonly name?: string | null;
+  readonly refType: InlineFragmentConditionalIDRef;
+}
+
+type SomeFragmentRef = any;
+import { FragmentReference } from "relay-runtime";
+export type InlineFragmentKitchenSinkRef = FragmentReference;
+export interface InlineFragmentKitchenSink {
+  readonly actor: {
+    readonly id: string;
+    readonly profilePicture: {
+      readonly uri: string | null;
+      readonly width?: number | null;
+      readonly height?: number | null;
+    } | null;
+    readonly name?: string | null;
+    readonly __fragments: SomeFragmentRef;
+  } | null;
+  readonly refType: InlineFragmentKitchenSinkRef;
+}
