@@ -1,0 +1,35 @@
+/**
+ * Flow
+ */
+
+import type { FragmentReference } from "relay-runtime";
+export opaque type ConditionField$ref: FragmentReference = FragmentReference;
+export type ConditionField = {|
+  +id?: string,
+  +$refType: ConditionField$ref,
+|};
+
+import type { FragmentReference } from "relay-runtime";
+export opaque type NestedCondition$ref: FragmentReference = FragmentReference;
+export type NestedCondition = {|
+  +id?: string,
+  +$refType: NestedCondition$ref,
+|};
+
+/**
+ * TypeScript
+ */
+
+import { FragmentReference } from "relay-runtime";
+export type ConditionFieldRef = FragmentReference;
+export interface ConditionField {
+  readonly id?: string;
+  readonly refType: ConditionFieldRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type NestedConditionRef = FragmentReference;
+export interface NestedCondition {
+  readonly id?: string;
+  readonly refType: NestedConditionRef;
+}

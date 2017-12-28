@@ -1,3 +1,31 @@
+/**
+ * Flow
+ */
+
+export type CommentCreateMutationVariables = {|
+  input: {
+    clientMutationId?: ?string,
+    feedbackId?: ?string,
+  },
+  first?: ?number,
+  orderBy?: ?$ReadOnlyArray<string>,
+|};
+export type CommentCreateMutationResponse = {|
+  +commentCreate: ?{|
+    +comment: ?{|
+      +id: string,
+      +name: ?string,
+      +friends: ?{|
+        +count: ?number
+      |},
+    |}
+  |}
+|};
+
+/**
+ * TypeScript
+ */
+
 export interface CommentCreateMutationVariables {
   input: {
     clientMutationId?: string | null;

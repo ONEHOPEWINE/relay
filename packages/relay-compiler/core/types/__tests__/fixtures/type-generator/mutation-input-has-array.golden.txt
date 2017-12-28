@@ -1,3 +1,25 @@
+/**
+ * Flow
+ */
+
+export type InputHasArrayVariables = {|
+  input?: ?{
+    clientMutationId?: ?string,
+    storyIds?: ?$ReadOnlyArray<?string>,
+  }
+|};
+export type InputHasArrayResponse = {|
+  +viewerNotificationsUpdateAllSeenState: ?{|
+    +stories: ?$ReadOnlyArray<?{|
+      +actorCount: ?number
+    |}>
+  |}
+|};
+
+/**
+ * TypeScript
+ */
+
 export interface InputHasArrayVariables {
   input?: {
     clientMutationId?: string | null;

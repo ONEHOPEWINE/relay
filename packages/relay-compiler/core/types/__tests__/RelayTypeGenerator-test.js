@@ -48,15 +48,14 @@ describe('RelayTypeGenerator', () => {
     expect.extend(getGoldenMatchers(__filename));
   });
 
-  it('matches expected Flow output', () => {
-    expect('fixtures/flow-generator').toMatchGolden(text => {
-      return generateTypes(RelayTypeGenerator.generateFlow, text);
-    });
-  });
-
-  it('matches expected TypeScript output', () => {
-    expect('fixtures/typescript-generator').toMatchGolden(text => {
-      return generateTypes(RelayTypeGenerator.generateTypeScript, text);
+  it('matches expected output', () => {
+    expect('fixtures/type-generator').toMatchGolden(text => {
+      return [
+        '/**\n * Flow\n */',
+        generateTypes(RelayTypeGenerator.generateFlow, text),
+        '/**\n * TypeScript\n */',
+        generateTypes(RelayTypeGenerator.generateTypeScript, text),
+      ].join('\n\n');
     });
   });
 });

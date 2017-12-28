@@ -1,6 +1,0 @@
-import { FragmentReference } from "relay-runtime";
-export type PluralFragmentRef = FragmentReference;
-export type PluralFragment = ReadonlyArray<{
-  readonly id: string;
-  readonly refType: PluralFragmentRef;
-}>;

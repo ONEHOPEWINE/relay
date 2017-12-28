@@ -1,3 +1,29 @@
+/**
+ * Flow
+ */
+
+export type PersonalityTraits = ("CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value");
+import type { FragmentReference } from "relay-runtime";
+export opaque type ScalarField$ref: FragmentReference = FragmentReference;
+export type ScalarField = {|
+  +id: string,
+  +name: ?string,
+  +websites: ?$ReadOnlyArray<?string>,
+  +traits: ?$ReadOnlyArray<?PersonalityTraits>,
+  +aliasedLinkedField: ?{|
+    +aliasedField: ?number
+  |},
+  +screennames: ?$ReadOnlyArray<?{|
+    +name: ?string,
+    +service: ?string,
+  |}>,
+  +$refType: ScalarField$ref,
+|};
+
+/**
+ * TypeScript
+ */
+
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value";
 import { FragmentReference } from "relay-runtime";
 export type ScalarFieldRef = FragmentReference;

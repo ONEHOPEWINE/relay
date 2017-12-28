@@ -1,0 +1,21 @@
+/**
+ * Flow
+ */
+
+import type { FragmentReference } from "relay-runtime";
+export opaque type PluralFragment$ref: FragmentReference = FragmentReference;
+export type PluralFragment = $ReadOnlyArray<{|
+  +id: string,
+  +$refType: PluralFragment$ref,
+|}>;
+
+/**
+ * TypeScript
+ */
+
+import { FragmentReference } from "relay-runtime";
+export type PluralFragmentRef = FragmentReference;
+export type PluralFragment = ReadonlyArray<{
+  readonly id: string;
+  readonly refType: PluralFragmentRef;
+}>;
