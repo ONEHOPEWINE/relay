@@ -22,12 +22,16 @@ const t = require('@babel/types');
 const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
+  exportOpaqueTypeDeclaration,
   exportType,
+  getRefTypeName,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
+  objectTypeProperty,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
+  refTypeObjectTypeProperty,
   stringLiteralTypeAnnotation,
   unionTypeAnnotation,
 } = require('./RelayFlowBabelFactories');
@@ -155,7 +159,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
       stringLiteralTypeAnnotation('%other'),
     );
     otherProp.leadingComments = lineComments(
-      "This will never be '%other', but we need some",
+      'This will never be "%other", but we need some',
       'value in case none of the concrete values match.',
     );
     types.push([otherProp]);
@@ -184,9 +188,7 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
   return unionTypeAnnotation(
     types.map(props => {
       if (refTypeName) {
-        props.push(
-          readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName)),
-        );
+        props.push(refTypeObjectTypeProperty(refTypeName));
       }
       return exactObjectTypeAnnotation(props);
     }),
@@ -272,11 +274,7 @@ function createVisitor(options: Options) {
           return [selection];
         });
         const refTypeName = getRefTypeName(node.name);
-        const refType = t.expressionStatement(
-          t.identifier(
-            `export opaque type ${refTypeName}: FragmentReference = FragmentReference`,
-          ),
-        );
+        const refType = exportOpaqueTypeDeclaration(refTypeName, 'FragmentReference');
         const baseType = selectionsToBabel(selections, state, refTypeName);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         return t.program([
@@ -365,8 +363,8 @@ function generateInputVariablesType(node: Root, state: State) {
     `${node.name}Variables`,
     exactObjectTypeAnnotation(
       node.argumentDefinitions.map(arg => {
-        const property = t.objectTypeProperty(
-          t.identifier(arg.name),
+        const property = objectTypeProperty(
+          arg.name,
           transformInputType(arg.type, state),
         );
         if (!(arg.type instanceof GraphQLNonNull)) {
@@ -433,15 +431,12 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
     values.push('%future added value');
     return exportType(
       name,
-      t.unionTypeAnnotation(
+      unionTypeAnnotation(
         values.map(value => stringLiteralTypeAnnotation(value)),
+        false,
       ),
     );
   });
-}
-
-function getRefTypeName(name: string): string {
-  return `${name}$ref`;
 }
 
 const FLOW_TRANSFORMS: Array<IRTransform> = [

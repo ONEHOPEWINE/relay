@@ -11,13 +11,7 @@
 
 'use strict';
 
-// const PatchedBabelGenerator = require('./PatchedBabelGenerator');
-const PatchedBabelGenerator = {
-  generate(ast) {
-    const generate = require('@babel/generator').default;
-    return generate(ast).code;
-  }
-};
+const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
@@ -28,15 +22,18 @@ const t = require('@babel/types');
 const {
   anyTypeAlias,
   exactObjectTypeAnnotation,
+  exportOpaqueTypeDeclaration,
   exportType,
+  getRefTypeName,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
+  objectTypeProperty,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
+  refTypeObjectTypeProperty,
   stringLiteralTypeAnnotation,
   unionTypeAnnotation,
-  objectTypeProperty,
 } = require('./RelayTSBabelFactories');
 const {
   transformScalarType,
@@ -188,13 +185,10 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
     types.push(selectionMapValues);
   }
 
-  // Create a union to represent a GraphQLUnionType
   return unionTypeAnnotation(
     types.map(props => {
       if (refTypeName) {
-        props.push(
-          readOnlyObjectTypeProperty('refType', t.identifier(refTypeName)),
-        );
+        props.push(refTypeObjectTypeProperty(refTypeName));
       }
       return exactObjectTypeAnnotation(props);
     }),
@@ -280,11 +274,7 @@ function createVisitor(options: Options) {
           return [selection];
         });
         const refTypeName = getRefTypeName(node.name);
-        const refType = t.expressionStatement(
-          t.identifier(
-            `export type ${refTypeName} = FragmentReference`,
-          ),
-        );
+        const refType = exportOpaqueTypeDeclaration(refTypeName, 'FragmentReference');
         const baseType = selectionsToBabel(selections, state, refTypeName);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         return t.program([
@@ -319,7 +309,6 @@ function createVisitor(options: Options) {
         });
       },
       ScalarField(node) {
-        // console.log(node)
         return [
           {
             key: node.alias || node.name,
@@ -445,13 +434,10 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
       name,
       unionTypeAnnotation(
         values.map(value => stringLiteralTypeAnnotation(value)),
+        false,
       ),
     );
   });
-}
-
-function getRefTypeName(name: string): string {
-  return `${name}Ref`;
 }
 
 const TS_TRANSFORMS: Array<IRTransform> = [

@@ -9,7 +9,7 @@ export type TypenameInside = ({|
   +username: ?string,
   +$refType: TypenameInside$ref,
 |} | {|
-  // This will never be '%other', but we need some
+  // This will never be "%other", but we need some
   // value in case none of the concrete values match.
   +__typename: "%other",
   +$refType: TypenameInside$ref,
@@ -26,7 +26,7 @@ export type TypenameOutside = ({|
   +username: ?string,
   +$refType: TypenameOutside$ref,
 |} | {|
-  // This will never be '%other', but we need some
+  // This will never be "%other", but we need some
   // value in case none of the concrete values match.
   +__typename: "%other",
   +$refType: TypenameOutside$ref,

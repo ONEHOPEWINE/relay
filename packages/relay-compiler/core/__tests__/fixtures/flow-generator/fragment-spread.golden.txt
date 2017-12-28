@@ -29,7 +29,7 @@ export type ConcreateTypes = {|
     +__typename: "User",
     +name: ?string,
   |} | {|
-    // This will never be '%other', but we need some
+    // This will never be "%other", but we need some
     // value in case none of the concrete values match.
     +__typename: "%other"
   |})),

@@ -24,10 +24,6 @@ function anyTypeAlias(name: string): BabelAST {
 }
 
 /**
- * {|
- *   PROPS
- * |}
- *
  * TODO: There is no `Exact` type in TypeScript atm
  * https://github.com/Microsoft/TypeScript/issues/12936
  */
@@ -113,13 +109,13 @@ function stringLiteralTypeAnnotation(value: string) {
  *
  * TYPES[0] | TYPES[1] | ...
  */
-function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
+function unionTypeAnnotation(types: Array<BabelAST>, onlyIfNeeded: boolean = true): BabelAST {
   invariant(
     types.length > 0,
     'RelayTSBabelFactories: cannot create a union of 0 types',
   );
   types = types.map(getRawType);
-  return t.TSTypeAnnotation(types.length === 1 ? types[0] : t.TSUnionType(types));
+  return t.TSTypeAnnotation(onlyIfNeeded && types.length === 1 ? types[0] : t.TSUnionType(types));
 }
 
 function nullableTypeAnnotation(type: BabelAST): BabelAST {
@@ -153,19 +149,38 @@ function objectTypeProperty(key: string, value: BabelAST) {
   return t.TSPropertySignature(t.identifier(key), value);
 }
 
+/**
+ * TODO: There is no `opaque` type in TypeScript atm
+ * https://github.com/Microsoft/TypeScript/issues/202
+ */
+function exportOpaqueTypeDeclaration(typeName: string, typeAnnotationName: string): BabelAST {
+  return exportType(typeName, t.TSTypeReference(t.identifier(typeAnnotationName)));
+}
+
+function getRefTypeName(name: string): string {
+  return `${name}Ref`;
+}
+
+function refTypeObjectTypeProperty(refTypeName: string) {
+  return readOnlyObjectTypeProperty('refType', t.identifier(refTypeName));
+}
+
 module.exports = {
   anyTypeAlias,
   exactObjectTypeAnnotation,
+  exportOpaqueTypeDeclaration,
   exportType,
+  getRefTypeName,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
+  objectTypeProperty,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
+  refTypeObjectTypeProperty,
   stringLiteralTypeAnnotation,
   unionTypeAnnotation,
   nullableTypeAnnotation,
   genericTypeAnnotation,
   typeParameterInstantiation,
-  objectTypeProperty,
 };
