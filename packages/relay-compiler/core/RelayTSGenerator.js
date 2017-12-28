@@ -105,7 +105,6 @@ function makeProp(
   if (schemaName === '__typename' && concreteType) {
     value = stringLiteralTypeAnnotation(concreteType);
   }
-  console.trace(key, value)
   const typeProperty = readOnlyObjectTypeProperty(key, value);
   if (conditional) {
     typeProperty.optional = true;

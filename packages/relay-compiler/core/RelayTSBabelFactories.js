@@ -27,12 +27,11 @@ function anyTypeAlias(name: string): BabelAST {
  * {|
  *   PROPS
  * |}
+ *
+ * TODO: There is no `Exact` type in TypeScript atm
+ * https://github.com/Microsoft/TypeScript/issues/12936
  */
 function exactObjectTypeAnnotation(props: Array<BabelAST>) {
-  // TODO: Make exact?
-  // const typeAnnotation = t.objectTypeAnnotation(props);
-  // typeAnnotation.exact = true;
-  // return typeAnnotation;
   return t.TSTypeAnnotation(t.TSTypeLiteral(props));
 }
 
@@ -41,11 +40,7 @@ function exactObjectTypeAnnotation(props: Array<BabelAST>) {
  * Otherwise this will export a type: export type NAME = type
  */
 function exportType(name: string, type: BabelAST) {
-  if (type.typeAnnotation) {
-    type = type.typeAnnotation;
-  } else {
-    console.warn(`TODO: A non-annotation type was given: ${type}`);
-  }
+  type = getRawType(type)
   if (t.isTSTypeLiteral(type)) {
     const interfaceBody = t.TSInterfaceBody(type.members)
     const interfaceDeclaration = t.TSInterfaceDeclaration(t.identifier(name), null, null, interfaceBody);
@@ -125,24 +120,12 @@ function unionTypeAnnotation(types: Array<BabelAST>): BabelAST {
     types.length > 0,
     'RelayTSBabelFactories: cannot create a union of 0 types',
   );
-  types = types.map(type => {
-    if (type.typeAnnotation) {
-      type = type.typeAnnotation;
-    } else {
-      console.warn(`TODO: A non-annotation type was given: ${type}`);
-    }
-    return type;
-  });
+  types = types.map(getRawType);
   return t.TSTypeAnnotation(types.length === 1 ? types[0] : t.TSUnionType(types));
 }
 
 function nullableTypeAnnotation(type: BabelAST): BabelAST {
-  if (type.typeAnnotation) {
-    type = type.typeAnnotation;
-  } else {
-    console.warn(`TODO: A non-annotation type was given: ${type}`);
-  }
-  return t.TSTypeAnnotation(t.TSUnionType([type, t.TSNullKeyword()]));
+  return t.TSTypeAnnotation(t.TSUnionType([getRawType(type), t.TSNullKeyword()]));
 }
 
 function genericTypeAnnotation(identifier: BabelAST, typeParameterInstantiation: BabelAST): BabelAST {
@@ -151,15 +134,12 @@ function genericTypeAnnotation(identifier: BabelAST, typeParameterInstantiation:
 
 function typeParameterInstantiation(params: Array<BabelAST>): BabelAST {
   // console.log(params)
-  params = params.map(type => {
-    if (type.typeAnnotation) {
-      type = type.typeAnnotation;
-    } else {
-      console.warn(`TODO: A non-annotation type was given: ${type}`);
-    }
-    return type;
-  });
-  return t.TSTypeParameterInstantiation(params);
+  return t.TSTypeParameterInstantiation(params.map(getRawType));
+}
+
+// TODO: Figure out if this was really necessary or just a mess-up in creating types vs annotations in the right places.
+function getRawType(typeOrAnnotation: BabelAST): BabelAST {
+  return typeOrAnnotation.typeAnnotation ? typeOrAnnotation.typeAnnotation : typeOrAnnotation;
 }
 
 module.exports = {
