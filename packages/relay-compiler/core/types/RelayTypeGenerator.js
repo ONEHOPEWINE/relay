@@ -12,10 +12,12 @@
 'use strict';
 
 const PatchedBabelGenerator = require('./PatchedBabelGenerator');
+const RelayFlowFactories = require('./RelayFlowFactories');
+const RelayTypeScriptFactories = require('./RelayTypeScriptFactories');
+const RelayTypeTransformers = require('./RelayTypeTransformers');
 
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
-const RelayTypeTransformers = require('RelayTypeTransformers');
 
 const nullthrows = require('nullthrows');
 const t = require('@babel/types');
@@ -29,7 +31,7 @@ const {
 } = require('graphql-compiler');
 
 // TODO:
-import type {ScalarTypeMapping} from './RelayFlowTypeTransformers';
+import type {ScalarTypeMapping} from './RelayTypeTransformers';
 
 import type {IRTransform, Fragment, Root} from 'graphql-compiler';
 import type {GraphQLEnumType} from 'graphql';
@@ -445,16 +447,17 @@ function generator(babelFactories: any) {
     });
   }
 
-  const TRANSFORMS: Array<IRTransform> = [
-    RelayRelayDirectiveTransform.transform,
-    RelayMaskTransform.transform,
-    FlattenTransform.transformWithOptions({}),
-  ];
-
-  return {
-    generate: Profiler.instrument(generate, 'RelayTypeGenerator.generate'),
-    transforms: TRANSFORMS,
-  }
+  return generate;
 }
 
-module.exports = generator;
+const TRANSFORMS: Array<IRTransform> = [
+  RelayRelayDirectiveTransform.transform,
+  RelayMaskTransform.transform,
+  FlattenTransform.transformWithOptions({}),
+];
+
+module.exports = {
+  generateFlow: Profiler.instrument(generator(RelayFlowFactories), 'RelayTypeGenerator.generateFlow'),
+  generateTypeScript: Profiler.instrument(generator(RelayTypeScriptFactories), 'RelayTypeGenerator.generateTypeScript'),
+  transforms: TRANSFORMS,
+};
