@@ -19,7 +19,8 @@ const RelayJSModuleParser = require('./core/RelayJSModuleParser');
 const RelayParser = require('./core/RelayParser');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
-const formatGeneratedModule = require('./codegen/formatGeneratedModule');
+const formatGeneratedJSModule = require('./codegen/formatGeneratedJSModule');
+const formatGeneratedTSModule = require('./codegen/formatGeneratedTSModule');
 
 const {
   ASTConvert,
@@ -46,7 +47,9 @@ module.exports = {
   MultiReporter,
   Runner: CodegenRunner,
   compileRelayArtifacts,
-  formatGeneratedModule,
+  formatGeneratedModule: formatGeneratedJSModule, // TODO: Backwards compatibility needed?
+  formatGeneratedJSModule,
+  formatGeneratedTSModule,
   convertASTDocuments: ASTConvert.convertASTDocuments,
   transformASTSchema: ASTConvert.transformASTSchema,
 };

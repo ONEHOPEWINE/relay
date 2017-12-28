@@ -23,7 +23,8 @@ const RelayJSModuleParser = require('../core/RelayJSModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 
-const formatGeneratedModule = require('../codegen/formatGeneratedModule');
+const formatGeneratedJSModule = require('../codegen/formatGeneratedJSModule');
+const formatGeneratedTSModule = require('../codegen/formatGeneratedTSModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -151,6 +152,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
+  const outputLanguage = getOutputLanguage(options);
+
   const parserConfigs = {
     default: {
       baseDir: srcDir,
@@ -163,9 +166,9 @@ Ensure that one such file exists in ${srcDir} or its parents.
   };
   const writerConfigs = {
     default: {
-      getWriter: getRelayFileWriter(srcDir, getOutputLanguage(options)),
+      getWriter: getRelayFileWriter(srcDir, outputLanguage),
       isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.js') && filePath.includes('__generated__'),
+        filePath.endsWith('.' + outputLanguage) && filePath.includes('__generated__'),
       parser: 'default',
     },
   };
@@ -204,7 +207,7 @@ function getRelayFileWriter(baseDir: string, outputLanguage: 'js' | 'ts') {
           queryTransforms,
         },
         customScalars: {},
-        formatModule: formatGeneratedModule,
+        formatModule: outputLanguage === 'js' ? formatGeneratedJSModule : formatGeneratedTSModule,
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,

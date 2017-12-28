@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule formatGeneratedModule
+ * @providesModule formatGeneratedJSModule
  * @flow
  * @format
  */
@@ -13,12 +13,12 @@
 
 import type {FormatModule} from './writeRelayGeneratedFile';
 
-const formatGeneratedModule: FormatModule = ({
+const formatGeneratedJSModule: FormatModule = ({
   moduleName,
   documentType,
   docText,
   concreteText,
-  flowText,
+  typeText,
   hash,
   relayRuntimeModule,
   sourceHash,
@@ -35,7 +35,7 @@ const formatGeneratedModule: FormatModule = ({
 
 /*::
 import type { ${documentType} } from '${relayRuntimeModule}';
-${flowText || ''}
+${typeText || ''}
 */
 
 ${docTextComment}
@@ -45,4 +45,4 @@ module.exports = node;
 `;
 };
 
-module.exports = formatGeneratedModule;
+module.exports = formatGeneratedJSModule;

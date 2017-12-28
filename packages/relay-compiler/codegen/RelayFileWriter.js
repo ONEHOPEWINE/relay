@@ -295,6 +295,7 @@ class RelayFileWriter implements FileWriterInterface {
               this._config.platform,
               relayRuntimeModule,
               sourceHash,
+              this._config.outputLanguage,
             );
           }),
         );

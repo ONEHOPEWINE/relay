@@ -36,7 +36,7 @@ export type FormatModule = ({|
     | typeof RelayConcreteNode.BATCH_REQUEST,
   docText: ?string,
   concreteText: string,
-  flowText: string,
+  typeText: string,
   hash: ?string,
   devOnlyAssignments: ?string,
   relayRuntimeModule: string,
@@ -47,17 +47,18 @@ async function writeRelayGeneratedFile(
   codegenDir: CodegenDirectory,
   generatedNode: GeneratedNode,
   formatModule: FormatModule,
-  flowText: string,
+  typeText: string,
   _persistQuery: ?(text: string) => Promise<string>,
   platform: ?string,
   relayRuntimeModule: string,
   sourceHash: string,
+  extension: 'js' | 'ts',
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow can refine.
   const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
-  const filename = platformName + '.js';
+  const filename = platformName + '.' + extension;
   const flowTypeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
       ? 'ConcreteFragment'
@@ -86,8 +87,8 @@ async function writeRelayGeneratedFile(
       const hasher = crypto.createHash('md5');
       hasher.update('cache-breaker-6');
       hasher.update(JSON.stringify(generatedNode));
-      if (flowText) {
-        hasher.update(flowText);
+      if (typeText) {
+        hasher.update(typeText);
       }
       if (persistQuery) {
         hasher.update('persisted');
@@ -143,7 +144,7 @@ async function writeRelayGeneratedFile(
     moduleName,
     documentType: flowTypeName,
     docText,
-    flowText,
+    typeText,
     hash: hash ? `@relayHash ${hash}` : null,
     concreteText: dedupeJSONStringify(generatedNode),
     devOnlyAssignments,
