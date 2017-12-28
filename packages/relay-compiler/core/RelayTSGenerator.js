@@ -190,12 +190,11 @@ function selectionsToBabel(selections, state: State, refTypeName?: string) {
   // Create a union to represent a GraphQLUnionType
   return unionTypeAnnotation(
     types.map(props => {
-      // TODO:
-      // if (refTypeName) {
-      //   props.push(
-      //     readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName)),
-      //   );
-      // }
+      if (refTypeName) {
+        props.push(
+          readOnlyObjectTypeProperty('refType', t.identifier(refTypeName)),
+        );
+      }
       return exactObjectTypeAnnotation(props);
     }),
   );
@@ -280,18 +279,18 @@ function createVisitor(options: Options) {
           return [selection];
         });
         const refTypeName = getRefTypeName(node.name);
-        // const refType = t.expressionStatement(
-        //   t.identifier(
-        //     `export opaque type ${refTypeName}: FragmentReference = FragmentReference`,
-        //   ),
-        // );
+        const refType = t.expressionStatement(
+          t.identifier(
+            `export type ${refTypeName} = FragmentReference`,
+          ),
+        );
         const baseType = selectionsToBabel(selections, state, refTypeName);
         const type = isPlural(node) ? readOnlyArrayOfType(baseType) : baseType;
         return t.program([
           ...getFragmentImports(state),
           ...getEnumDefinitions(state),
-          // importTypes(['FragmentReference'], state.relayRuntimeModule),
-          // refType,
+          importTypes(['FragmentReference'], state.relayRuntimeModule),
+          refType,
           exportType(node.name, type),
         ]);
       },
@@ -451,7 +450,7 @@ function getEnumDefinitions({enumsHasteModule, usedEnums}: State) {
 }
 
 function getRefTypeName(name: string): string {
-  return `${name}$ref`;
+  return `${name}Ref`;
 }
 
 const TS_TRANSFORMS: Array<IRTransform> = [

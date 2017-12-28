@@ -1,4 +1,6 @@
 export type PersonalityTraits = "CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY";
+import { FragmentReference } from "relay-runtime";
+export type ScalarFieldRef = FragmentReference;
 export interface ScalarField {
   readonly id: string;
   readonly name: string | null;
@@ -11,4 +13,5 @@ export interface ScalarField {
     readonly name: string | null;
     readonly service: string | null;
   } | null> | null;
+  readonly refType: ScalarFieldRef;
 }

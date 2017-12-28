@@ -1,7 +1,13 @@
+import { FragmentReference } from "relay-runtime";
+export type ConditionFieldRef = FragmentReference;
 export interface ConditionField {
   readonly id?: string;
+  readonly refType: ConditionFieldRef;
 }
 
+import { FragmentReference } from "relay-runtime";
+export type NestedConditionRef = FragmentReference;
 export interface NestedCondition {
   readonly id?: string;
+  readonly refType: NestedConditionRef;
 }

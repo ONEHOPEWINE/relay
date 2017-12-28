@@ -55,7 +55,7 @@ function exportType(name: string, type: BabelAST) {
 }
 
 /**
- * import type {NAMES[0], NAMES[1], ...} from 'MODULE';
+ * import {NAMES[0], NAMES[1], ...} from 'MODULE';
  */
 function importTypes(names: Array<string>, module: string) {
   const importDeclaration = t.importDeclaration(
@@ -64,7 +64,6 @@ function importTypes(names: Array<string>, module: string) {
     ),
     t.stringLiteral(module),
   );
-  importDeclaration.importKind = 'type';
   return importDeclaration;
 }
 
@@ -99,6 +98,12 @@ function readOnlyArrayOfType(thing: BabelAST) {
  * +KEY: VALUE
  */
 function readOnlyObjectTypeProperty(key: string, value: BabelAST) {
+  if (t.isIdentifier(value)) {
+    value = t.TSTypeReference(value);
+  }
+  if (!value.typeAnnotation) {
+    value = t.TSTypeAnnotation(value);
+  }
   const prop = t.TSPropertySignature(t.identifier(key), value);
   prop.readonly = true;
   return prop;
