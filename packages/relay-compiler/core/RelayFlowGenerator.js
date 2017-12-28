@@ -261,11 +261,11 @@ function createVisitor(options: Options) {
 
       Fragment(node) {
         let selections = flattenArray(node.selections);
-        const numConecreteSelections = selections.filter(s => s.concreteType)
+        const numConcreteSelections = selections.filter(s => s.concreteType)
           .length;
         selections = selections.map(selection => {
           if (
-            numConecreteSelections <= 1 &&
+            numConcreteSelections <= 1 &&
             isTypenameSelection(selection) &&
             !isAbstractType(node.type)
           ) {
