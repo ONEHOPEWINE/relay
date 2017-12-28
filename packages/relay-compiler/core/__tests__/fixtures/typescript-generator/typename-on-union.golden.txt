@@ -1,0 +1,73 @@
+import { FragmentReference } from "relay-runtime";
+export type TypenameInsideRef = FragmentReference;
+export type TypenameInside = {
+  readonly __typename: "User";
+  readonly firstName: string | null;
+  readonly refType: TypenameInsideRef;
+} | {
+  readonly __typename: "Page";
+  readonly username: string | null;
+  readonly refType: TypenameInsideRef;
+} | {
+  // This will never be "%other", but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly refType: TypenameInsideRef;
+};
+
+import { FragmentReference } from "relay-runtime";
+export type TypenameOutsideRef = FragmentReference;
+export type TypenameOutside = {
+  readonly __typename: "User";
+  readonly firstName: string | null;
+  readonly refType: TypenameOutsideRef;
+} | {
+  readonly __typename: "Page";
+  readonly username: string | null;
+  readonly refType: TypenameOutsideRef;
+} | {
+  // This will never be "%other", but we need some
+  // value in case none of the concrete values match.
+  readonly __typename: "%other";
+  readonly refType: TypenameOutsideRef;
+};
+
+import { FragmentReference } from "relay-runtime";
+export type TypenameOutsideWithAbstractTypeRef = FragmentReference;
+export interface TypenameOutsideWithAbstractType {
+  readonly __typename: string;
+  readonly username?: string | null;
+  readonly address?: {
+    readonly city: string | null;
+    readonly country: string | null;
+    readonly street?: string | null;
+  } | null;
+  readonly firstName?: string | null;
+  readonly refType: TypenameOutsideWithAbstractTypeRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithoutSpreadsRef = FragmentReference;
+export interface TypenameWithoutSpreads {
+  readonly firstName: string | null;
+  readonly __typename: "User";
+  readonly refType: TypenameWithoutSpreadsRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithoutSpreadsAbstractTypeRef = FragmentReference;
+export interface TypenameWithoutSpreadsAbstractType {
+  readonly __typename: string;
+  readonly id: string;
+  readonly refType: TypenameWithoutSpreadsAbstractTypeRef;
+}
+
+import { FragmentReference } from "relay-runtime";
+export type TypenameWithCommonSelectionsRef = FragmentReference;
+export interface TypenameWithCommonSelections {
+  readonly __typename: string;
+  readonly name: string | null;
+  readonly firstName?: string | null;
+  readonly username?: string | null;
+  readonly refType: TypenameWithCommonSelectionsRef;
+}
