@@ -13,6 +13,5 @@
 
 const RelayTypeGenerator = require('RelayTypeGenerator');
 const RelayTSBabelFactories = require('RelayTSBabelFactories');
-const RelayTSTypeTransformers = require('RelayTSTypeTransformers');
 
-module.exports = RelayTypeGenerator(RelayTSBabelFactories, RelayTSTypeTransformers);
+module.exports = RelayTypeGenerator(RelayTSBabelFactories);

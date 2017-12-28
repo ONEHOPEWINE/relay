@@ -165,8 +165,30 @@ function refTypeObjectTypeProperty(refTypeName: string) {
   return readOnlyObjectTypeProperty('refType', t.identifier(refTypeName));
 }
 
+function stringTypeAnnotation() {
+  return t.TSTypeAnnotation(t.TSStringKeyword());
+}
+
+function numberTypeAnnotation() {
+  return t.TSTypeAnnotation(t.TSNumberKeyword());
+}
+
+function booleanTypeAnnotation() {
+  return t.TSTypeAnnotation(t.TSBooleanKeyword());
+}
+
+function anyTypeAnnotation() {
+  return t.TSTypeAnnotation(t.TSAnyKeyword());
+}
+
+function objectTypeAnnotation(properties: Array<BabelAST>): BabelAST {
+  return t.TSTypeLiteral(properties);
+}
+
 module.exports = {
   anyTypeAlias,
+  anyTypeAnnotation,
+  booleanTypeAnnotation,
   exactObjectTypeAnnotation,
   exportOpaqueTypeDeclaration,
   exportType,
@@ -174,11 +196,14 @@ module.exports = {
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
+  numberTypeAnnotation,
+  objectTypeAnnotation,
   objectTypeProperty,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
   refTypeObjectTypeProperty,
   stringLiteralTypeAnnotation,
+  stringTypeAnnotation,
   unionTypeAnnotation,
   nullableTypeAnnotation,
   genericTypeAnnotation,

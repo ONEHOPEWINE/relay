@@ -15,6 +15,7 @@ const PatchedBabelGenerator = require('./PatchedBabelGenerator');
 
 const RelayMaskTransform = require('RelayMaskTransform');
 const RelayRelayDirectiveTransform = require('RelayRelayDirectiveTransform');
+const RelayTypeTransformers = require('RelayTypeTransformers');
 
 const nullthrows = require('nullthrows');
 const t = require('@babel/types');
@@ -62,7 +63,7 @@ type Selection = {
 };
 type SelectionMap = Map<string, Selection>;
 
-function generator(babelFactories: any, typeTransformers: any) {
+function generator(babelFactories: any) {
   const {
     anyTypeAlias,
     exactObjectTypeAnnotation,
@@ -79,10 +80,11 @@ function generator(babelFactories: any, typeTransformers: any) {
     stringLiteralTypeAnnotation,
     unionTypeAnnotation,
   } = babelFactories;
+
   const {
     transformScalarType,
     transformInputType,
-  } = typeTransformers;
+  } = RelayTypeTransformers(babelFactories);
 
   function generate(node: Root | Fragment, options: Options): string {
     const ast = IRVisitor.visit(node, createVisitor(options));
