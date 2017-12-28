@@ -1,11 +1,11 @@
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type ConditionField$ref: FragmentReference = FragmentReference;
 export type ConditionField = {|
   +id?: string,
   +$refType: ConditionField$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type NestedCondition$ref: FragmentReference = FragmentReference;
 export type NestedCondition = {|
   +id?: string,

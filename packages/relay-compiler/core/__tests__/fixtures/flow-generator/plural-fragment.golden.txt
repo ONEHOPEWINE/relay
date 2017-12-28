@@ -1,4 +1,4 @@
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type PluralFragment$ref: FragmentReference = FragmentReference;
 export type PluralFragment = $ReadOnlyArray<{|
   +id: string,

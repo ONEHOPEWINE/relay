@@ -1,5 +1,5 @@
-export type PersonalityTraits = ('CHEERFUL' | 'DERISIVE' | 'HELPFUL' | 'SNARKY' | '%future added value');
-import type { FragmentReference } from 'relay-runtime';
+export type PersonalityTraits = ("CHEERFUL" | "DERISIVE" | "HELPFUL" | "SNARKY" | "%future added value");
+import type { FragmentReference } from "relay-runtime";
 export opaque type ScalarField$ref: FragmentReference = FragmentReference;
 export type ScalarField = {|
   +id: string,
@@ -7,7 +7,7 @@ export type ScalarField = {|
   +websites: ?$ReadOnlyArray<?string>,
   +traits: ?$ReadOnlyArray<?PersonalityTraits>,
   +aliasedLinkedField: ?{|
-    +aliasedField: ?number,
+    +aliasedField: ?number
   |},
   +screennames: ?$ReadOnlyArray<?{|
     +name: ?string,

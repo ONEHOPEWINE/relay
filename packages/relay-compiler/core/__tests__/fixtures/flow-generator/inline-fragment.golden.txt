@@ -1,29 +1,29 @@
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type InlineFragment$ref: FragmentReference = FragmentReference;
 export type InlineFragment = {|
   +id: string,
   +name?: ?string,
   +message?: ?{|
-    +text: ?string,
+    +text: ?string
   |},
   +$refType: InlineFragment$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type InlineFragmentWithOverlappingFields$ref: FragmentReference = FragmentReference;
 export type InlineFragmentWithOverlappingFields = {|
   +hometown?: ?{|
     +id: string,
     +name: ?string,
     +message?: ?{|
-      +text: ?string,
+      +text: ?string
     |},
   |},
   +name?: ?string,
   +$refType: InlineFragmentWithOverlappingFields$ref,
 |};
 
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type InlineFragmentConditionalID$ref: FragmentReference = FragmentReference;
 export type InlineFragmentConditionalID = {|
   +id?: string,
@@ -32,7 +32,7 @@ export type InlineFragmentConditionalID = {|
 |};
 
 type SomeFragment$ref = any;
-import type { FragmentReference } from 'relay-runtime';
+import type { FragmentReference } from "relay-runtime";
 export opaque type InlineFragmentKitchenSink$ref: FragmentReference = FragmentReference;
 export type InlineFragmentKitchenSink = {|
   +actor: ?{|

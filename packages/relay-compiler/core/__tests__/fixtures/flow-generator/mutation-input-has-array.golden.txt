@@ -2,12 +2,12 @@ export type InputHasArrayVariables = {|
   input?: ?{
     clientMutationId?: ?string,
     storyIds?: ?$ReadOnlyArray<?string>,
-  },
+  }
 |};
 export type InputHasArrayResponse = {|
   +viewerNotificationsUpdateAllSeenState: ?{|
     +stories: ?$ReadOnlyArray<?{|
-      +actorCount: ?number,
-    |}>,
-  |},
+      +actorCount: ?number
+    |}>
+  |}
 |};
