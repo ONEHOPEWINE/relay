@@ -1,0 +1,7 @@
+export interface ConditionField {
+  readonly id?: string;
+}
+
+export interface NestedCondition {
+  readonly id?: string;
+}
