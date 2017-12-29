@@ -37,7 +37,6 @@ const BABYLON_OPTIONS = {
     'doExpressions',
     'dynamicImport',
     'exportExtensions',
-    'flow',
     'functionBind',
     'functionSent',
     'jsx',
@@ -56,7 +55,14 @@ function find(
   {validateNames}: Options,
 ): Array<string> {
   const result = [];
-  const ast = babylon.parse(text, BABYLON_OPTIONS);
+  const babylonOptions = {
+    ...BABYLON_OPTIONS,
+    plugins: [
+      ...BABYLON_OPTIONS.plugins,
+      (/^\.tsx?$/).test(path.extname(filePath)) ? 'typescript' : 'flow',
+    ]
+  };
+  const ast = babylon.parse(text, babylonOptions);
   const moduleName = getModuleName(filePath);
 
   const visitors = {
