@@ -51,7 +51,8 @@ function getNode(taggedNode) {
   if (typeof fn !== 'function') {
     return (taggedNode: any);
   }
-  return fn();
+  const data: any = fn();
+  return data.__esModule ? data.default : data;
 }
 
 function getFragment(taggedNode: GraphQLTaggedNode): ConcreteFragment {
