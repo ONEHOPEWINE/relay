@@ -39,7 +39,7 @@ export type UnionTypeTestResponse = {|
  */
 
 import { FragmentReference } from "relay-runtime";
-export type LinkedFieldRef = FragmentReference;
+export type LinkedField$ref = FragmentReference;
 export interface LinkedField {
   readonly profilePicture: {
     readonly uri: string | null;
@@ -55,7 +55,7 @@ export interface LinkedField {
   readonly actor: {
     readonly id: string;
   } | null;
-  readonly refType: LinkedFieldRef;
+  readonly $refType: LinkedField$ref;
 }
 
 export interface UnionTypeTestVariables {}

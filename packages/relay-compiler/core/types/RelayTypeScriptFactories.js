@@ -150,10 +150,6 @@ function exportOpaqueTypeDeclaration(typeName: string, typeAnnotationName: strin
   return exportType(typeName, t.TSTypeReference(t.identifier(typeAnnotationName)));
 }
 
-function refTypeObjectTypeProperty(refTypeName: string): BabelAST {
-  return readOnlyObjectTypeProperty('refType', t.identifier(refTypeName));
-}
-
 function stringLiteralTypeAnnotation(value: string): BabelAST {
   return t.TSTypeAnnotation(t.TSLiteralType(t.StringLiteral(value)));
 }
@@ -185,10 +181,6 @@ function getRawType(typeOrAnnotation: BabelAST): BabelAST {
   return typeOrAnnotation.typeAnnotation ? typeOrAnnotation.typeAnnotation : typeOrAnnotation;
 }
 
-function getRefTypeName(name: string): string {
-  return `${name}Ref`;
-}
-
 const factories: BabelFactories = {
   anyTypeAlias,
   anyTypeAnnotation,
@@ -196,7 +188,6 @@ const factories: BabelFactories = {
   exactObjectTypeAnnotation,
   exportOpaqueTypeDeclaration,
   exportType,
-  getRefTypeName,
   importTypes,
   intersectionTypeAnnotation,
   lineComments,
@@ -205,7 +196,6 @@ const factories: BabelFactories = {
   objectTypeProperty,
   readOnlyArrayOfType,
   readOnlyObjectTypeProperty,
-  refTypeObjectTypeProperty,
   stringLiteralTypeAnnotation,
   stringTypeAnnotation,
   unionTypeAnnotation,

@@ -43,39 +43,39 @@ export type AnotherRecursiveFragment = {|
  * TypeScript
  */
 
-import { PhotoFragmentRef } from "PhotoFragment.graphql";
+import { PhotoFragment$ref } from "PhotoFragment.graphql";
 import { FragmentReference } from "relay-runtime";
-export type UserProfileRef = FragmentReference;
+export type UserProfile$ref = FragmentReference;
 export interface UserProfile {
   readonly profilePicture: {
     readonly uri: string | null;
     readonly width: number | null;
     readonly height: number | null;
-    readonly __fragments: PhotoFragmentRef;
+    readonly __fragments: PhotoFragment$ref;
   } | null;
-  readonly refType: UserProfileRef;
+  readonly $refType: UserProfile$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type PhotoFragmentRef = FragmentReference;
+export type PhotoFragment$ref = FragmentReference;
 export interface PhotoFragment {
   readonly uri: string | null;
   readonly width: number | null;
-  readonly refType: PhotoFragmentRef;
+  readonly $refType: PhotoFragment$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type RecursiveFragmentRef = FragmentReference;
+export type RecursiveFragment$ref = FragmentReference;
 export interface RecursiveFragment {
   readonly uri: string | null;
   readonly width: number | null;
-  readonly refType: RecursiveFragmentRef;
+  readonly $refType: RecursiveFragment$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type AnotherRecursiveFragmentRef = FragmentReference;
+export type AnotherRecursiveFragment$ref = FragmentReference;
 export interface AnotherRecursiveFragment {
   readonly uri: string | null;
   readonly height: number | null;
-  readonly refType: AnotherRecursiveFragmentRef;
+  readonly $refType: AnotherRecursiveFragment$ref;
 }

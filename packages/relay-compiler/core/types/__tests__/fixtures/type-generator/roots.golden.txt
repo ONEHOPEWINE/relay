@@ -60,10 +60,10 @@ export interface ExampleQueryResponse {
 }
 
 import { FragmentReference } from "relay-runtime";
-export type ExampleFragmentRef = FragmentReference;
+export type ExampleFragment$ref = FragmentReference;
 export interface ExampleFragment {
   readonly id: string;
-  readonly refType: ExampleFragmentRef;
+  readonly $refType: ExampleFragment$ref;
 }
 
 export interface TestMutationVariables {

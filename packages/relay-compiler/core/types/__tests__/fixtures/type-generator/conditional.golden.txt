@@ -21,15 +21,15 @@ export type NestedCondition = {|
  */
 
 import { FragmentReference } from "relay-runtime";
-export type ConditionFieldRef = FragmentReference;
+export type ConditionField$ref = FragmentReference;
 export interface ConditionField {
   readonly id?: string;
-  readonly refType: ConditionFieldRef;
+  readonly $refType: ConditionField$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type NestedConditionRef = FragmentReference;
+export type NestedCondition$ref = FragmentReference;
 export interface NestedCondition {
   readonly id?: string;
-  readonly refType: NestedConditionRef;
+  readonly $refType: NestedCondition$ref;
 }

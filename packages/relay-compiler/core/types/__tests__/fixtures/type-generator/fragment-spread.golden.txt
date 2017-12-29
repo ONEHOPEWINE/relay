@@ -44,33 +44,33 @@ export type ConcreateTypes = {|
  * TypeScript
  */
 
-type OtherFragmentRef = any;
-type PictureFragmentRef = any;
-type UserFrag1Ref = any;
-type UserFrag2Ref = any;
+type OtherFragment$ref = any;
+type PictureFragment$ref = any;
+type UserFrag1$ref = any;
+type UserFrag2$ref = any;
 import { FragmentReference } from "relay-runtime";
-export type FragmentSpreadRef = FragmentReference;
+export type FragmentSpread$ref = FragmentReference;
 export interface FragmentSpread {
   readonly id: string;
   readonly justFrag: {
-    readonly __fragments: PictureFragmentRef;
+    readonly __fragments: PictureFragment$ref;
   } | null;
   readonly fragAndField: {
     readonly uri: string | null;
-    readonly __fragments: PictureFragmentRef;
+    readonly __fragments: PictureFragment$ref;
   } | null;
-  readonly __fragments: OtherFragmentRef & UserFrag1Ref & UserFrag2Ref;
-  readonly refType: FragmentSpreadRef;
+  readonly __fragments: OtherFragment$ref & UserFrag1$ref & UserFrag2$ref;
+  readonly $refType: FragmentSpread$ref;
 }
 
-type PageFragmentRef = any;
+type PageFragment$ref = any;
 import { FragmentReference } from "relay-runtime";
-export type ConcreateTypesRef = FragmentReference;
+export type ConcreateTypes$ref = FragmentReference;
 export interface ConcreateTypes {
   readonly actor: {
     readonly __typename: "Page";
     readonly id: string;
-    readonly __fragments: PageFragmentRef;
+    readonly __fragments: PageFragment$ref;
   } | {
     readonly __typename: "User";
     readonly name: string | null;
@@ -79,5 +79,5 @@ export interface ConcreateTypes {
     // value in case none of the concrete values match.
     readonly __typename: "%other";
   } | null;
-  readonly refType: ConcreateTypesRef;
+  readonly $refType: ConcreateTypes$ref;
 }

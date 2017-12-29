@@ -14,8 +14,8 @@ export type PluralFragment = $ReadOnlyArray<{|
  */
 
 import { FragmentReference } from "relay-runtime";
-export type PluralFragmentRef = FragmentReference;
+export type PluralFragment$ref = FragmentReference;
 export type PluralFragment = ReadonlyArray<{
   readonly id: string;
-  readonly refType: PluralFragmentRef;
+  readonly $refType: PluralFragment$ref;
 }>;

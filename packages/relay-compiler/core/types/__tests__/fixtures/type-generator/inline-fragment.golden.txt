@@ -57,18 +57,18 @@ export type InlineFragmentKitchenSink = {|
  */
 
 import { FragmentReference } from "relay-runtime";
-export type InlineFragmentRef = FragmentReference;
+export type InlineFragment$ref = FragmentReference;
 export interface InlineFragment {
   readonly id: string;
   readonly name?: string | null;
   readonly message?: {
     readonly text: string | null;
   } | null;
-  readonly refType: InlineFragmentRef;
+  readonly $refType: InlineFragment$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type InlineFragmentWithOverlappingFieldsRef = FragmentReference;
+export type InlineFragmentWithOverlappingFields$ref = FragmentReference;
 export interface InlineFragmentWithOverlappingFields {
   readonly hometown?: {
     readonly id: string;
@@ -78,20 +78,20 @@ export interface InlineFragmentWithOverlappingFields {
     } | null;
   } | null;
   readonly name?: string | null;
-  readonly refType: InlineFragmentWithOverlappingFieldsRef;
+  readonly $refType: InlineFragmentWithOverlappingFields$ref;
 }
 
 import { FragmentReference } from "relay-runtime";
-export type InlineFragmentConditionalIDRef = FragmentReference;
+export type InlineFragmentConditionalID$ref = FragmentReference;
 export interface InlineFragmentConditionalID {
   readonly id?: string;
   readonly name?: string | null;
-  readonly refType: InlineFragmentConditionalIDRef;
+  readonly $refType: InlineFragmentConditionalID$ref;
 }
 
-type SomeFragmentRef = any;
+type SomeFragment$ref = any;
 import { FragmentReference } from "relay-runtime";
-export type InlineFragmentKitchenSinkRef = FragmentReference;
+export type InlineFragmentKitchenSink$ref = FragmentReference;
 export interface InlineFragmentKitchenSink {
   readonly actor: {
     readonly id: string;
@@ -101,7 +101,7 @@ export interface InlineFragmentKitchenSink {
       readonly height?: number | null;
     } | null;
     readonly name?: string | null;
-    readonly __fragments: SomeFragmentRef;
+    readonly __fragments: SomeFragment$ref;
   } | null;
-  readonly refType: InlineFragmentKitchenSinkRef;
+  readonly $refType: InlineFragmentKitchenSink$ref;
 }

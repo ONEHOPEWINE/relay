@@ -82,7 +82,6 @@ export type BabelFactories = {
   exportOpaqueTypeDeclaration(typeName: string, typeAnnotationName: string): BabelAST,
   exportType(name: string, type: BabelAST): BabelAST,
   genericTypeAnnotation(id: BabelAST, typeParameters?: BabelAST): BabelAST,
-  getRefTypeName(name: string): string,
   importTypes(names: Array<string>, module: string): BabelAST,
   intersectionTypeAnnotation(types: Array<BabelAST>): BabelAST,
   lineComments(...lines: Array<string>): Array<BabelAST>,
@@ -92,7 +91,6 @@ export type BabelFactories = {
   objectTypeProperty(key: string, value: BabelAST): BabelAST,
   readOnlyArrayOfType(thing: BabelAST): BabelAST,
   readOnlyObjectTypeProperty(key: string, value: BabelAST): BabelAST,
-  refTypeObjectTypeProperty(refTypeName: string): BabelAST,
   stringLiteralTypeAnnotation(value: string): BabelAST,
   stringTypeAnnotation(): BabelAST,
   unionTypeAnnotation(types: Array<BabelAST>, onlyIfNeeded?: boolean): BabelAST,
@@ -104,14 +102,12 @@ function generator(babelFactories: BabelFactories) {
     exactObjectTypeAnnotation,
     exportOpaqueTypeDeclaration,
     exportType,
-    getRefTypeName,
     importTypes,
     intersectionTypeAnnotation,
     lineComments,
     objectTypeProperty,
     readOnlyArrayOfType,
     readOnlyObjectTypeProperty,
-    refTypeObjectTypeProperty,
     stringLiteralTypeAnnotation,
     unionTypeAnnotation,
   } = babelFactories;
@@ -230,7 +226,7 @@ function generator(babelFactories: BabelFactories) {
     return unionTypeAnnotation(
       types.map(props => {
         if (refTypeName) {
-          props.push(refTypeObjectTypeProperty(refTypeName));
+          props.push(readOnlyObjectTypeProperty('$refType', t.identifier(refTypeName)));
         }
         return exactObjectTypeAnnotation(props);
       }),
@@ -482,6 +478,10 @@ function generator(babelFactories: BabelFactories) {
   }
 
   return generate;
+}
+
+function getRefTypeName(name: string): string {
+  return `${name}$ref`;
 }
 
 const TRANSFORMS: Array<IRTransform> = [
