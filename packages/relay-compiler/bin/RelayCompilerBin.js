@@ -19,7 +19,7 @@ const {
   WatchmanClient,
 } = require('graphql-compiler');
 
-const RelayJSModuleParser = require('../core/RelayJSModuleParser');
+const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 
@@ -157,8 +157,8 @@ Ensure that one such file exists in ${srcDir} or its parents.
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelayJSModuleParser.getFileFilter,
-      getParser: RelayJSModuleParser.getParser,
+      getFileFilter: RelaySourceModuleParser.getFileFilter,
+      getParser: RelaySourceModuleParser.getParser,
       getSchema: () => getSchema(schemaPath),
       watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
       filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),

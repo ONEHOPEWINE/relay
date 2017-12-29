@@ -15,7 +15,7 @@ const GraphQLCompilerContext = require('./graphql-compiler/core/GraphQLCompilerC
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
-const RelayJSModuleParser = require('./core/RelayJSModuleParser');
+const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayParser = require('./core/RelayParser');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
@@ -39,11 +39,12 @@ module.exports = {
   GraphQLCompilerContext,
 
   /** @deprecated Use JSModuleParser. */
-  FileIRParser: RelayJSModuleParser,
+  FileIRParser: RelaySourceModuleParser,
 
   FileWriter: RelayFileWriter,
   IRTransforms: RelayIRTransforms,
-  JSModuleParser: RelayJSModuleParser,
+  JSModuleParser: RelaySourceModuleParser, // TODO: Backwards compatibility needed?
+  SourceModuleParser: RelaySourceModuleParser,
   MultiReporter,
   Runner: CodegenRunner,
   compileRelayArtifacts,

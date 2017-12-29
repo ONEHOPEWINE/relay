@@ -4,7 +4,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  *
- * @providesModule RelayJSModuleParser
+ * @providesModule RelaySourceModuleParser
  * @flow
  * @format
  */
@@ -35,7 +35,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
 
   invariant(
     text.indexOf('graphql') >= 0,
-    'RelayJSModuleParser: Files should be filtered before passed to the ' +
+    'RelaySourceModuleParser: Files should be filtered before passed to the ' +
       'parser, got unfiltered file `%s`.',
     file,
   );
@@ -46,7 +46,7 @@ function parseFile(baseDir: string, file: File): ?DocumentNode {
       const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
       invariant(
         ast.definitions.length,
-        'RelayJSModuleParser: Expected GraphQL text to contain at least one ' +
+        'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
           'definition (fragment, mutation, query, subscription), got `%s`.',
         template,
       );
