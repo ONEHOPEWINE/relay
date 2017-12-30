@@ -23,14 +23,15 @@ const formatGeneratedTSModule: FormatModule = ({
   relayRuntimeModule,
   sourceHash,
 }) => {
+  const documentTypeImport = documentType ? `import type { ${documentType} } from '${relayRuntimeModule}';` : '';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   return `/* tslint:disable */
 
-import { ${documentType} } from '${relayRuntimeModule}';
+${documentTypeImport}
 ${typeText || ''}
 
 ${docTextComment}
-const node: ${documentType} = ${concreteText};
+const node: ${documentType || 'never'} = ${concreteText};
 (node as any).hash = '${sourceHash}';
 export default node;
 `;

@@ -33,7 +33,8 @@ export type FormatModule = ({|
   documentType:
     | typeof RelayConcreteNode.FRAGMENT
     | typeof RelayConcreteNode.REQUEST
-    | typeof RelayConcreteNode.BATCH_REQUEST,
+    | typeof RelayConcreteNode.BATCH_REQUEST
+    | null,
   docText: ?string,
   concreteText: string,
   typeText: string,
@@ -54,19 +55,19 @@ async function writeRelayGeneratedFile(
   sourceHash: string,
   extension: 'js' | 'ts',
 ): Promise<?GeneratedNode> {
-  // Copy to const so Flow can refine.
+  // Copy to const so Flow/TypeScript can refine.
   const persistQuery = _persistQuery;
   const moduleName = generatedNode.name + '.graphql';
   const platformName = platform ? moduleName + '.' + platform : moduleName;
   const filename = platformName + '.' + extension;
-  const flowTypeName =
+  const typeName =
     generatedNode.kind === RelayConcreteNode.FRAGMENT
       ? 'ConcreteFragment'
       : generatedNode.kind === RelayConcreteNode.REQUEST
         ? 'ConcreteRequest'
         : generatedNode.kind === RelayConcreteNode.BATCH_REQUEST
           ? 'ConcreteBatchRequest'
-          : 'empty';
+          : null;
   const devOnlyProperties = {};
 
   let docText;
@@ -142,7 +143,7 @@ async function writeRelayGeneratedFile(
 
   const moduleText = formatModule({
     moduleName,
-    documentType: flowTypeName,
+    documentType: typeName,
     docText,
     typeText,
     hash: hash ? `@relayHash ${hash}` : null,

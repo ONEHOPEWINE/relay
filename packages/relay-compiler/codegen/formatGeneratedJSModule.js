@@ -23,6 +23,7 @@ const formatGeneratedJSModule: FormatModule = ({
   relayRuntimeModule,
   sourceHash,
 }) => {
+  const documentTypeImport = documentType ? `import type { ${documentType} } from '${relayRuntimeModule}';` : '';
   const docTextComment = docText ? '\n/*\n' + docText.trim() + '\n*/\n' : '';
   const hashText = hash ? `\n * ${hash}` : '';
   return `/**
@@ -34,12 +35,12 @@ const formatGeneratedJSModule: FormatModule = ({
 'use strict';
 
 /*::
-import type { ${documentType} } from '${relayRuntimeModule}';
+${documentTypeImport}
 ${typeText || ''}
 */
 
 ${docTextComment}
-const node/*: ${documentType}*/ = ${concreteText};
+const node/*: ${documentType || 'empty'}*/ = ${concreteText};
 (node/*: any*/).hash = '${sourceHash}';
 module.exports = node;
 `;
