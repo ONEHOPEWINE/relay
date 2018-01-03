@@ -13,7 +13,6 @@
 
 const RelayCompilerCache = require('../util/RelayCompilerCache');
 
-const babylon = require('babylon');
 const getModuleName = require('../util/getModuleName');
 const graphql = require('graphql');
 const path = require('path');
@@ -21,6 +20,8 @@ const util = require('util');
 
 const {Profiler} = require('graphql-compiler');
 
+// const babylon = require('babylon');
+// import type {File as BabelFile} from 'babylon';
 import type {File} from 'graphql-compiler';
 
 // Attempt to be as inclusive as possible of source text.
@@ -53,6 +54,7 @@ function find(
   text: string,
   filePath: string,
   {validateNames}: Options,
+  parse: (text: string) => File,
 ): Array<string> {
   const result = [];
   const babylonOptions = {
@@ -62,7 +64,7 @@ function find(
       (/^\.tsx?$/).test(path.extname(filePath)) ? 'typescript' : 'flow',
     ]
   };
-  const ast = babylon.parse(text, babylonOptions);
+  const ast = parse(text);
   const moduleName = getModuleName(filePath);
 
   const visitors = {
@@ -172,12 +174,13 @@ function memoizedFind(
   baseDir: string,
   file: File,
   options: Options,
+  parse: (text: string) => File,
 ): Array<string> {
   return cache.getOrCompute(
     file.hash + (options.validateNames ? '1' : '0'),
     () => {
       const absPath = path.join(baseDir, file.relPath);
-      return find(text, absPath, options);
+      return find(text, absPath, options, parse);
     },
   );
 }
@@ -312,6 +315,7 @@ function traverse(node, visitors) {
 }
 
 module.exports = {
+  BABYLON_OPTIONS,
   find: Profiler.instrument(find, 'FindGraphQLTags.find'),
   memoizedFind,
 };
