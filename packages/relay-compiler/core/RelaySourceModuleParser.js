@@ -29,52 +29,54 @@ const FIND_OPTIONS = {
   validateNames: true,
 };
 
-// Throws an error if parsing the file fails
-function parseFile(baseDir: string, file: File): ?DocumentNode {
-  const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+module.exports = (parse: (text: string) => File) => {
+  // Throws an error if parsing the file fails
+  function parseFile(baseDir: string, file: File): ?DocumentNode {
+    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
 
-  invariant(
-    text.indexOf('graphql') >= 0,
-    'RelaySourceModuleParser: Files should be filtered before passed to the ' +
-      'parser, got unfiltered file `%s`.',
-    file,
-  );
+    invariant(
+      text.indexOf('graphql') >= 0,
+      'RelaySourceModuleParser: Files should be filtered before passed to the ' +
+        'parser, got unfiltered file `%s`.',
+      file,
+    );
 
-  const astDefinitions = [];
-  FindGraphQLTags.memoizedFind(text, baseDir, file, FIND_OPTIONS).forEach(
-    template => {
-      const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
-      invariant(
-        ast.definitions.length,
-        'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
-          'definition (fragment, mutation, query, subscription), got `%s`.',
-        template,
-      );
-      astDefinitions.push(...ast.definitions);
-    },
-  );
+    const astDefinitions = [];
+    FindGraphQLTags.memoizedFind(text, baseDir, file, FIND_OPTIONS, parse).forEach(
+      template => {
+        const ast = parseGraphQL(new GraphQL.Source(template, file.relPath));
+        invariant(
+          ast.definitions.length,
+          'RelaySourceModuleParser: Expected GraphQL text to contain at least one ' +
+            'definition (fragment, mutation, query, subscription), got `%s`.',
+          template,
+        );
+        astDefinitions.push(...ast.definitions);
+      },
+    );
+
+    return {
+      kind: 'Document',
+      definitions: astDefinitions,
+    };
+  }
+
+  function getParser(baseDir: string): ASTCache {
+    return new ASTCache({
+      baseDir,
+      parse: parseFile,
+    });
+  }
+
+  function getFileFilter(baseDir: string): FileFilter {
+    return (file: File) => {
+      const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
+      return text.indexOf('graphql') >= 0;
+    };
+  }
 
   return {
-    kind: 'Document',
-    definitions: astDefinitions,
+    getParser,
+    getFileFilter,
   };
 }
-
-function getParser(baseDir: string): ASTCache {
-  return new ASTCache({
-    baseDir,
-    parse: parseFile,
-  });
-}
-
-function getFileFilter(baseDir: string): FileFilter {
-  return (file: File) => {
-    const text = fs.readFileSync(path.join(baseDir, file.relPath), 'utf8');
-    return text.indexOf('graphql') >= 0;
-  };
-}
-
-module.exports = {
-  getParser,
-  getFileFilter,
-};

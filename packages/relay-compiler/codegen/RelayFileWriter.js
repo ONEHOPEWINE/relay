@@ -11,7 +11,6 @@
 
 'use strict';
 
-const RelayTypeGenerator = require('../core/types/RelayTypeGenerator');
 const RelayParser = require('../core/RelayParser');
 const RelayValidator = require('../core/RelayValidator');
 
@@ -31,11 +30,12 @@ const {
 } = require('graphql-compiler');
 const {Map: ImmutableMap} = require('immutable');
 
-import type {ScalarTypeMapping} from '../core/types/RelayTypeTransformers';
+import type {ScalarTypeMapping} from '../language/RelayTypeTransformers';
 import type {RelayCompilerTransforms} from './compileRelayArtifacts';
 import type {FormatModule} from './writeRelayGeneratedFile';
 import type {FileWriterInterface, Reporter} from 'graphql-compiler';
 import type {DocumentNode, GraphQLSchema, ValidationContext} from 'graphql';
+import type {TypeGenerator} from 'RelayLanguagePluginInterface';
 
 const {isOperationDefinitionAST} = SchemaUtils;
 
@@ -60,6 +60,7 @@ export type WriterConfig = {
   relayRuntimeModule?: string,
   schemaExtensions: Array<string>,
   useHaste: boolean,
+  extension: string,
   // Haste style module that exports flow types for GraphQL enums.
   // TODO(T22422153) support non-haste environments
   enumsHasteModule?: string,
@@ -67,7 +68,6 @@ export type WriterConfig = {
     GLOBAL_RULES?: Array<ValidationRule>,
     LOCAL_RULES?: Array<ValidationRule>,
   },
-  outputLanguage: 'js' | 'ts',
 };
 
 class RelayFileWriter implements FileWriterInterface {
@@ -77,6 +77,7 @@ class RelayFileWriter implements FileWriterInterface {
   _baseDocuments: ImmutableMap<string, DocumentNode>;
   _documents: ImmutableMap<string, DocumentNode>;
   _reporter: Reporter;
+  _typeGenerator: TypeGenerator;
 
   constructor({
     config,
@@ -85,6 +86,7 @@ class RelayFileWriter implements FileWriterInterface {
     documents,
     schema,
     reporter,
+    typeGenerator,
   }: {
     config: WriterConfig,
     onlyValidate: boolean,
@@ -92,6 +94,7 @@ class RelayFileWriter implements FileWriterInterface {
     documents: ImmutableMap<string, DocumentNode>,
     schema: GraphQLSchema,
     reporter: Reporter,
+    typeGenerator: TypeGenerator,
   }) {
     this._baseDocuments = baseDocuments || ImmutableMap();
     this._baseSchema = schema;
@@ -99,6 +102,7 @@ class RelayFileWriter implements FileWriterInterface {
     this._documents = documents;
     this._onlyValidate = onlyValidate;
     this._reporter = reporter;
+    this._typeGenerator = typeGenerator;
 
     validateConfig(this._config);
   }
@@ -206,7 +210,7 @@ class RelayFileWriter implements FileWriterInterface {
       };
 
       const transformedTypeContext = compilerContext.applyTransforms(
-        RelayTypeGenerator.transforms,
+        this._typeGenerator.transforms,
         this._reporter,
       );
       const transformedQueryContext = compilerContext.applyTransforms(
@@ -266,21 +270,14 @@ class RelayFileWriter implements FileWriterInterface {
               node.name,
             );
 
-            const typeOptions = {
+            const types = this._typeGenerator.generate(typeNode, {
               customScalars: this._config.customScalars,
               enumsHasteModule: this._config.enumsHasteModule,
               existingFragmentNames,
               inputFieldWhiteList: this._config.inputFieldWhiteListForFlow,
               relayRuntimeModule,
               useHaste: this._config.useHaste,
-            };
-
-            let types;
-            if (this._config.outputLanguage === 'js') {
-              types = RelayTypeGenerator.generateFlow(typeNode, typeOptions);
-            } else {
-              types = RelayTypeGenerator.generateTypeScript(typeNode, typeOptions);
-            }
+            });
 
             const sourceHash = Profiler.run('hashGraphQL', () =>
               md5(graphql.print(getDefinitionMeta(node.name).ast)),
@@ -295,7 +292,7 @@ class RelayFileWriter implements FileWriterInterface {
               this._config.platform,
               relayRuntimeModule,
               sourceHash,
-              this._config.outputLanguage,
+              this._config.extension,
             );
           }),
         );

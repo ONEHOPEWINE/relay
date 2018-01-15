@@ -53,7 +53,7 @@ async function writeRelayGeneratedFile(
   platform: ?string,
   relayRuntimeModule: string,
   sourceHash: string,
-  extension: 'js' | 'ts',
+  extension: string,
 ): Promise<?GeneratedNode> {
   // Copy to const so Flow/TypeScript can refine.
   const persistQuery = _persistQuery;

@@ -15,12 +15,12 @@ const GraphQLCompilerContext = require('./graphql-compiler/core/GraphQLCompilerC
 const RelayCodeGenerator = require('./codegen/RelayCodeGenerator');
 const RelayFileWriter = require('./codegen/RelayFileWriter');
 const RelayIRTransforms = require('./core/RelayIRTransforms');
-const RelaySourceModuleParser = require('./core/RelaySourceModuleParser');
 const RelayParser = require('./core/RelayParser');
 
 const compileRelayArtifacts = require('./codegen/compileRelayArtifacts');
 const formatGeneratedJSModule = require('./codegen/formatGeneratedJSModule');
 const formatGeneratedTSModule = require('./codegen/formatGeneratedTSModule');
+
 
 const {
   ASTConvert,

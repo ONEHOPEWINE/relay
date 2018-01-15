@@ -19,12 +19,9 @@ const {
   WatchmanClient,
 } = require('graphql-compiler');
 
-const RelaySourceModuleParser = require('../core/RelaySourceModuleParser');
 const RelayFileWriter = require('../codegen/RelayFileWriter');
 const RelayIRTransforms = require('../core/RelayIRTransforms');
 
-const formatGeneratedJSModule = require('../codegen/formatGeneratedJSModule');
-const formatGeneratedTSModule = require('../codegen/formatGeneratedTSModule');
 const fs = require('fs');
 const path = require('path');
 const yargs = require('yargs');
@@ -46,6 +43,9 @@ const {
 } = RelayIRTransforms;
 
 import type {GraphQLSchema} from 'graphql';
+
+const RelayLanguagePluginJavaScript = require('RelayLanguagePluginJavaScript');
+import type {PluginInterface} from 'RelayLanguagePluginInterface';
 
 function buildWatchExpression(options: {
   extensions: Array<string>,
@@ -84,43 +84,34 @@ function getFilepathsFromGlob(
   });
 }
 
-function getOutputLanguage(options: {
-  extensions: Array<string>,
-  language?: string,
-}): 'js' | 'ts' {
-  let outputLanguage: ?('js' | 'ts');
-  if (options.language) {
-    if (options.language === 'js' || options.language === 'ts') {
-      outputLanguage = options.language;
-    } else {
-      throw new Error('Language should be either `js` or `ts`.');
-    }
+function getLanguagePlugin(options: {
+  language: string,
+}): PluginInterface {
+  if (options.language === 'javascript') {
+    return RelayLanguagePluginJavaScript();
+  } else {
+    try {
+      const languagePlugin = (global.__non_webpack_require__ || require)(options.language);
+      if (typeof languagePlugin === 'function') {
+        // For now a plugin doesn’t take any arguments, but may do so in the future.
+        return languagePlugin();
+      }
+    } catch (err) {}
   }
-  if (!outputLanguage) {
-    // Create a list of extensions that match js* or ts*
-    const extensions = [...new Set(options.extensions.map(ext => {
-      const match = ext.match(/^(js|ts)x?/);
-      return match && match[0];
-    }).filter(ext => !!ext))];
-    // Only if there’s only 1 result do we choose that as the default
-    if (extensions.length === 1 && extensions[0] === 'js' || extensions[0] === 'ts') {
-      outputLanguage = extensions[0];
-    }
-  }
-  return outputLanguage || 'js';
+  throw new Error(`Unable to load language plugin: ${options.language}`);
 }
 
 async function run(options: {
   schema: string,
   src: string,
-  extensions: Array<string>,
+  extensions?: Array<string>,
   include: Array<string>,
   exclude: Array<string>,
   verbose: boolean,
   watchman: boolean,
   watch?: ?boolean,
   validate: boolean,
-  language?: string,
+  language: string,
 }) {
   const schemaPath = path.resolve(process.cwd(), options.schema);
   if (!fs.existsSync(schemaPath)) {
@@ -152,23 +143,25 @@ Ensure that one such file exists in ${srcDir} or its parents.
 
   const useWatchman = options.watchman && (await WatchmanClient.isAvailable());
 
-  const outputLanguage = getOutputLanguage(options);
+  const languagePlugin = getLanguagePlugin(options);
+
+  const extensions = options.extensions || languagePlugin.inputExtensions;
 
   const parserConfigs = {
     default: {
       baseDir: srcDir,
-      getFileFilter: RelaySourceModuleParser.getFileFilter,
-      getParser: RelaySourceModuleParser.getParser,
+      getFileFilter: languagePlugin.getFileFilter,
+      getParser: languagePlugin.getParser,
       getSchema: () => getSchema(schemaPath),
-      watchmanExpression: useWatchman ? buildWatchExpression(options) : null,
-      filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, options),
+      watchmanExpression: useWatchman ? buildWatchExpression({ ...options, extensions }) : null,
+      filepaths: useWatchman ? null : getFilepathsFromGlob(srcDir, { ...options, extensions }),
     },
   };
   const writerConfigs = {
     default: {
-      getWriter: getRelayFileWriter(srcDir, outputLanguage),
+      getWriter: getRelayFileWriter(srcDir, languagePlugin),
       isGeneratedFile: (filePath: string) =>
-        filePath.endsWith('.' + outputLanguage) && filePath.includes('__generated__'),
+        filePath.endsWith('.' + languagePlugin.outputExtension) && filePath.includes('__generated__'),
       parser: 'default',
     },
   };
@@ -194,7 +187,7 @@ Ensure that one such file exists in ${srcDir} or its parents.
   }
 }
 
-function getRelayFileWriter(baseDir: string, outputLanguage: 'js' | 'ts') {
+function getRelayFileWriter(baseDir: string, languagePlugin: PluginInterface) {
   return (onlyValidate, schema, documents, baseDocuments, reporter) =>
     new RelayFileWriter({
       config: {
@@ -207,17 +200,18 @@ function getRelayFileWriter(baseDir: string, outputLanguage: 'js' | 'ts') {
           queryTransforms,
         },
         customScalars: {},
-        formatModule: outputLanguage === 'js' ? formatGeneratedJSModule : formatGeneratedTSModule,
+        formatModule: languagePlugin.formatModule,
         inputFieldWhiteListForFlow: [],
         schemaExtensions,
         useHaste: false,
-        outputLanguage
+        extension: languagePlugin.outputExtension,
       },
       onlyValidate,
       schema,
       baseDocuments,
       documents,
       reporter,
+      typeGenerator: languagePlugin.typeGenerator,
     });
 }
 
@@ -299,7 +293,6 @@ const argv = yargs
     },
     extensions: {
       array: true,
-      default: ['js'],
       describe: 'File extensions to compile (--extensions js jsx)',
       type: 'string',
     },
@@ -324,8 +317,9 @@ const argv = yargs
       default: false,
     },
     language: {
-      describe: 'The language used for artifacts (js or ts), defaults to base on `extensions` option',
+      describe: 'The language used for input files and artifacts',
       type: 'string',
+      default: 'javascript',
     },
   })
   .help().argv;
