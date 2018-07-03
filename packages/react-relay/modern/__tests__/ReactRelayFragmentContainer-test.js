@@ -38,7 +38,7 @@ describe('ReactRelayFragmentContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
@@ -75,7 +75,7 @@ describe('ReactRelayFragmentContainer', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(
+    (({UserFragment, UserQuery} = environment.mock.compile(
       `
       query UserQuery($id: ID!) {
         node(id: $id) {
@@ -90,7 +90,7 @@ describe('ReactRelayFragmentContainer', () => {
         name @include(if: $cond)
       }
     `,
-    ));
+    )));
 
     render = jest.fn(() => <div />);
     spec = {

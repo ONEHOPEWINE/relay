@@ -49,7 +49,7 @@ describe('ReactRelayPaginationContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
@@ -88,7 +88,7 @@ describe('ReactRelayPaginationContainer', () => {
     environment = createMockEnvironment({
       handlerProvider: () => ConnectionHandler,
     });
-    ({UserFragment, UserQuery} = generateAndCompile(
+    (({UserFragment, UserQuery} = generateAndCompile(
       `
       query UserQuery(
         $after: ID
@@ -116,10 +116,10 @@ describe('ReactRelayPaginationContainer', () => {
         }
       }
     `,
-    ));
+    )));
 
     render = jest.fn(props => {
-      ({hasMore, isLoading, loadMore, refetchConnection} = props.relay);
+      (({hasMore, isLoading, loadMore, refetchConnection} = props.relay));
       return <div />;
     });
     variables = {
@@ -687,7 +687,7 @@ describe('ReactRelayPaginationContainer', () => {
   });
 
   it('fails if missing @connection directive', () => {
-    ({UserFragment, UserQuery} = generateAndCompile(
+    (({UserFragment, UserQuery} = generateAndCompile(
       `
         query UserQuery(
           $after: ID
@@ -715,7 +715,7 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       `,
-    ));
+    )));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,
@@ -747,7 +747,7 @@ describe('ReactRelayPaginationContainer', () => {
 
   it('does not fail invariant if one fragment has a @connection directive', () => {
     let ViewerFragment;
-    ({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(
+    (({UserFragment, UserQuery, ViewerFragment} = generateAndCompile(
       `
         query UserQuery(
           $after: ID
@@ -786,7 +786,7 @@ describe('ReactRelayPaginationContainer', () => {
           }
         }
       `,
-    ));
+    )));
 
     TestContainer = ReactRelayPaginationContainer.createContainer(
       TestComponent,

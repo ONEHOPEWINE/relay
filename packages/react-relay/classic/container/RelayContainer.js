@@ -466,7 +466,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillReceiveProps(
+    UNSAFE_componentWillReceiveProps(
       nextProps: Object,
       maybeNextContext?: RelayContainerContext,
     ): void {

@@ -40,7 +40,7 @@ describe('ReactRelayRefetchContainer', () => {
       this.relay = {environment, variables};
       this.state = {props: null};
     }
-    componentWillReceiveProps(nextProps) {
+    UNSAFE_componentWillReceiveProps(nextProps) {
       // eslint-disable-next-line no-shadow
       const {environment, variables} = nextProps;
       if (
@@ -77,7 +77,7 @@ describe('ReactRelayRefetchContainer', () => {
     expect.extend(RelayModernTestUtils.matchers);
 
     environment = createMockEnvironment();
-    ({UserFragment, UserQuery} = environment.mock.compile(
+    (({UserFragment, UserQuery} = environment.mock.compile(
       `
       query UserQuery(
         $id: ID!
@@ -94,7 +94,7 @@ describe('ReactRelayRefetchContainer', () => {
         name @include(if: $cond)
       }
     `,
-    ));
+    )));
 
     ContextGetter = class extends React.Component {
       componentDidMount() {
