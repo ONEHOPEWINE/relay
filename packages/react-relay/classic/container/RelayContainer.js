@@ -457,7 +457,7 @@ function createContainerComponent(
       );
     }
 
-    componentWillMount(): void {
+    UNSAFE_componentWillMount(): void {
       if (this.context.route.useMockData) {
         return;
       }

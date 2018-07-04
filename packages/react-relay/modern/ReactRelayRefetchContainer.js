@@ -17,7 +17,6 @@ const RelayPropTypes = require('../classic/container/RelayPropTypes');
 const areEqual = require('areEqual');
 const buildReactRelayContainer = require('./buildReactRelayContainer');
 const isScalarAndEqual = require('isScalarAndEqual');
-const polyfill = require('react-lifecycles-compat');
 
 const {
   getComponentName,
@@ -430,7 +429,6 @@ function createContainerWithFragments<
   profileContainer(Container, 'ReactRelayRefetchContainer');
 
   // Make static getDerivedStateFromProps work with older React versions:
-  polyfill(Container);
 
   return Container;
 }
